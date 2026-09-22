@@ -98,7 +98,7 @@ st.session_state.df_hospitalizacoes
 ''' ### Ocorrência por bairros:'''
 st.session_state.df_analise
 
-''' #### Filtre a visualização dos dados com os controles abaixo:'''
+''' #### Filtre e ordene a visualização dos dados com os controles abaixo:'''
 
 lista_bairros = list(st.session_state.df_analise['NM_BAIRRO'])
 if "selecao_multi" not in st.session_state:
@@ -218,11 +218,12 @@ for index, row in df_news.iterrows():
     f"""*Publicado em: {row['hora_publi_origem']}*"""
     f"""*{row["resumo_materia"]}*"""
 
-""" #### Links úteis para as iniciativas e fontes de inspiração do projeto."""
-st.markdown(f"Dataset (2025) em [dataset](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/b300a634-1ab7-49fc-8592-4b45227822a8)") 
-st.markdown("*a plataforma disponibiliza dados a partir do ano de 2015*")
-st.markdown(f"Metadados do registro de casos em JSON [metadados](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/2b62054a-6709-4678-b26d-595c92921a9b)")
-st.markdown(f"ODS escolhido: [3 - Saúde e Bem-Estar](https://gtagenda2030.org.br/ods/ods3/)")
+# Seção será reincluída em versões próximas, com evoluções
+#""" #### Links úteis para as iniciativas e fontes de inspiração do projeto."""
+#st.markdown(f"Dataset (2025) em [dataset](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/b300a634-1ab7-49fc-8592-4b45227822a8)") 
+#st.markdown("*a plataforma disponibiliza dados a partir do ano de 2015*")
+#st.markdown(f"Metadados do registro de casos em JSON [metadados](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/2b62054a-6709-4678-b26d-595c92921a9b)")
+#st.markdown(f"ODS escolhido: [3 - Saúde e Bem-Estar](https://gtagenda2030.org.br/ods/ods3/)")
 
 if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (ano de 2025)":
     st.rerun()
