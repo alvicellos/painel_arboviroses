@@ -1,6 +1,0 @@
-    ORDENAÇÂO, CASO PRECISE
-    df_bairros = df_bairros.sort_values(by='TOTAL_CASOS', ascending=False)
-
-''' ### Próximo passo: acessar dados de população para realizar os cálculos '''
-''' ### Agregar mais dois anos da série histórica '''
-''' ### Separar dengue e chukyngunya ?'''
