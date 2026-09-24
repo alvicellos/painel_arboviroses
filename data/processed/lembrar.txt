@@ -1,1 +1,0 @@
-O resultado do processamento de texto do scraping tem que vir aqui
