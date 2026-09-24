@@ -6,6 +6,10 @@ import streamlit as st
 import time
 from src.carga_preparacao import carregar_dados_casos, carregar_dados_populacao, criar_analise, carregar_noticias
 
+# ----------------------------------------------------------------------
+# DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
+# ----------------------------------------------------------------------
+
 palavras_chave = [
     "arbovirose",
     "dengue",
@@ -56,9 +60,8 @@ if st.session_state.dados_exibir == "Exibir dados originais (ano de 2025)":
     if "df_analise" not in st.session_state:
         st.session_state.df_analise = df_analise    
     if "subtitulo_dados" not in st.session_state:
-        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife (2025)'''
-    
-    # Para recarregar na exclusão do arquivo
+        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife (2025)'''    
+    # Para recarregar os dados originais na exclusão do arquivo carregado pelo usuário
     st.session_state.df_casos_carregados = df_casos_carregados
     st.session_state.df_hospitalizacoes = df_hospitalizacoes
     st.session_state.df_analise = df_analise
@@ -205,8 +208,8 @@ num_palavras_chave, palavras_chave_resumos, col_palavras = st.columns(3)
 with num_palavras_chave:    
     st.metric(label="Palavras chave:", value=len(palavras_chave))
 
-with palavras_chave_resumos:
-    st.metric(label="Palavras-chave nos resumos:", value=contagem_chaves)
+with palavras_chave_resumos:    
+    st.metric(label= "Frequência de palavras-chave", value=contagem_chaves)
 
 with col_palavras:
     f'''Palavras-chave: *{", ".join(palavras_chave)}*'''

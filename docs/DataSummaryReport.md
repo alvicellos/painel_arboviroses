@@ -4,9 +4,9 @@
 
 * A fonte de dados serão os arquivos dispoíveis em https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya, que compreendem o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025. Neste momento, a aplicação carrega por padrão os dados de 2025, salvos em csv. O usuário pode anexar um arquivo referente a outro ano da série histórica para visualizar o conteúdo a partir dos dados ali contidos.
 
-* API para população (da prefeitura)
+* API geográfica da Prefeitura do Recife, em: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer, com dados de população colhidos no censo de 2002, já agregados por bairro
 
-* Página da EBC para scraping
+* Página da EBC para scraping, https://busca.ebc.com.br/nodes?utf8=%E2%9C%93&q=dengue+chikungunya, pesquisa de notícias provenientes de diferentes agências, resultado da consulta pelos termos 'dengue chikunghunya'.
 
 ## Características dos dados
 

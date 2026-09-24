@@ -3,9 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 
 # O tratamento de erro será incrementado nas próximas iterações
+# A página é pública, mas preciso implementar a consulta ao robots.txt e publicar a licença
+# url = "https://busca.ebc.com.br/?site_id=agenciabrasil&q=dengue"
+url = "https://busca.ebc.com.br/nodes?utf8=%E2%9C%93&q=dengue+chikungunya"
 
-url = "https://busca.ebc.com.br/?site_id=agenciabrasil&q=dengue"
-
+'''
 palavras_chave = [
     "arbovirose",
     "dengue",
@@ -25,6 +27,7 @@ palavras_chave = [
     "pernilongo"
     "muriçoca"
 ]
+'''
 
 try:
     response = requests.get(url)
@@ -47,9 +50,9 @@ try:
         texto_resumo = tag.get_text().strip().replace('\r', ' ').replace('\n', '')
         #print(f"Item {i}: {texto_resumo}")
         resumos_materias.append(texto_resumo)
-        for palavra in palavras_chave:
-            if palavra in texto_resumo:
-                print(palavra, texto_resumo.count(palavra))         
+        #for palavra in palavras_chave:
+        #    if palavra in texto_resumo:
+        #        print(palavra, texto_resumo.count(palavra))         
 
     horarios_publicacao = sopa.select('p.info-new')
     print(f"\nTotal de elementos encontrados: {len(horarios_publicacao)}")
@@ -64,7 +67,7 @@ try:
         "hora_publi_origem": horarios_origem    
     })
 
-    df_noticias.to_csv(r".\data\news.csv", index=False)
+    df_noticias.to_csv(r".\data\processed\news.csv", index=False)
 
-except:
+except:    
     pass

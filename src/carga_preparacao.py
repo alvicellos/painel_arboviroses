@@ -112,5 +112,5 @@ def criar_analise(dataframe_casos, dataframe_populacao):
 # ----------------------------------------------------------------------
 
 def carregar_noticias():
-    df_noticias = pd.read_csv(r"./data/news.csv", encoding='utf-8')
+    df_noticias = pd.read_csv(r"./data/processed/news.csv", encoding='utf-8')
     return df_noticias
