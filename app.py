@@ -200,7 +200,7 @@ df_news = carregar_noticias()
 contagem_chaves = 0
 for index, row in df_news.iterrows():
     for palavra in palavras_chave:
-        if palavra in row['resumo_materia']:
+        if palavra in row['texto_materia']:
             contagem_chaves += 1
             
 num_palavras_chave, palavras_chave_resumos, col_palavras = st.columns(3)
@@ -217,9 +217,11 @@ with col_palavras:
 st.write("\n")
 
 for index, row in df_news.iterrows():
-    f"""###### {row['titulo_noticia']}"""
-    f"""*Publicado em: {row['hora_publi_origem']}*"""
-    f"""*{row["resumo_materia"]}*"""
+    f"""###### {row['titulo']}"""
+    #f"""*Publicado em: {row['hora_publi_origem']}*"""
+    f"""*Link para a matérias: ({row['link']})*"""
+    f"""*Trecho da matéria...*"""
+    f"""{row["texto_materia"][:250]}..."""
 
 # Seção será reincluída em versões próximas, com evoluções
 #""" #### Links úteis para as iniciativas e fontes de inspiração do projeto."""
