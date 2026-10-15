@@ -4,7 +4,7 @@ import numpy as np
 from functools import reduce
 import streamlit as st
 import time
-from src.carga_preparacao import carregar_dados_casos, carregar_dados_populacao, criar_analise, carregar_noticias
+from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, primeira_agregacao, criar_analise, carregar_noticias
 
 # ----------------------------------------------------------------------
 # Configuração da página
@@ -50,15 +50,26 @@ df_populacao = carregar_dados_populacao()
 
 # REORDENAR O DF_ANÁLSE COM AS COLUNAS DE MAIOR INTERESSE PRIMEIRO
 
-# Precisa ?
-if st.session_state.arquivo_usuario == None:
-    arquivo = r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv"    
-    df_casos_carregados, df_hospitalizacoes = carregar_dados_casos(arquivo)    
-    df_analise = criar_analise(df_casos_carregados, df_populacao)
+# Precisa, se eu repito essas linhas logo depois ?
+# if st.session_state.arquivo_usuario == None:
+#     arquivo = r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv"    
+#     df_casos_carregados, df_hospitalizacoes = carregar_dados_fonte(arquivo)    
+#     df_analise = criar_analise(df_casos_carregados, df_populacao)
 
-arquivo = r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv"    
-df_casos_carregados, df_hospitalizacoes = carregar_dados_casos(arquivo)    
+# arquivo = r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv"    
+
+dados = carregar_dados_fonte() # carregar_dados_fonte(arquivo=None, json=True)
+df_casos_carregados, df_hospitalizacoes = primeira_agregacao(dados)
+
 df_analise = criar_analise(df_casos_carregados, df_populacao)
+
+# Orquestração
+# dados = pd.read_json(r"data\processed\data_series.json")
+# agregado, hosp = primeira_agregacao(dados)                # eu exibo hosp como amostra dos dados
+#                                                           # depois exibo análise
+# pop = carregar_dados_populacao() (Já chamei)
+# analise = criar_analise(agregado, pop)
+# analise1 = criar_analise(hosp, pop)
 
 if st.session_state.dados_exibir == "Exibir dados originais (ano de 2025)":
     if "df_casos_carregados" not in st.session_state:
@@ -89,18 +100,18 @@ st.subheader("Problema de negócio e objetivos:")
 
 st.write("Orientar gestores em saúde a respeito das localidades de ocorrência dos casos mais graves de chikungunya, a partir da proporção de hospitalizações por casos confirmados e da incidência total de casos na população.")
 
-st.subheader("KIPs:")
-st.markdown(
-    '''
-    * Visualizar os bairros com maiores incidências:
-       - por total de casos, 
-       - por incidência em 100k hab, 
-       - por percentual de hospitalizações
-    * em até 4 cliques;
-    * incorporar dados de outros anos nas exibições;
-    * prazo imediato (este TP)
-    '''
-    )
+# st.subheader("KIPs:")
+# st.markdown(
+#     '''
+#     * Visualizar os bairros com maiores incidências:
+#        - por total de casos, 
+#        - por incidência em 100k hab, 
+#        - por percentual de hospitalizações
+#     * em até 4 cliques;
+#     * incorporar dados de outros anos nas exibições;
+#     * prazo imediato (este TP)
+#     '''
+#     )
 
 # Registros de casos confirmados de dengue ou chikungunya na cidade do Recife (ano ou usuário)
 st.session_state.subtitulo_dados
@@ -181,9 +192,18 @@ if arquivo_usuario is not None:
     if botao_filtrar_dados:
         st.write("Alterações aplicadas")
         time.sleep(1.5)        
-        if st.session_state.dados_exibir == "Exibir dados do usuário":    
-            df_casos_carregados_1, df_hospitalizacoes_1 = carregar_dados_casos(st.session_state.arquivo_usuario)            
-            df_analise_1 = criar_analise(df_casos_carregados_1, df_populacao)             
+        if st.session_state.dados_exibir == "Exibir dados do usuário":
+            
+            dados_usuario = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)
+            # df_casos_carregados_1, df_hospitalizacoes_1 = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)
+            df_casos_carregados_1, df_hospitalizacoes_1 = primeira_agregacao(dados_usuario)
+            df_analise_1 = criar_analise(df_casos_carregados_1, df_populacao)           
+            
+            # Refatoração
+            # dados = carregar_dados_fonte() # carregar_dados_fonte(arquivo=None, json=True)
+            # df_casos_carregados, df_hospitalizacoes = primeira_agregacao(dados)
+            # df_analise = criar_analise(df_casos_carregados, df_populacao
+            
             # Para trocar os dados exibidos
             st.session_state.df_casos_carregados = df_casos_carregados_1
             st.session_state.df_hospitalizacoes = df_hospitalizacoes_1              

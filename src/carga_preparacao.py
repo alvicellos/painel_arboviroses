@@ -106,25 +106,42 @@ def carregar_dados_api(colunas, colunas_2020_menos):
     return df
 
 @st.cache_data(ttl=3600)
+def carregar_dados_fonte(arquivo=None, json=True):         # fonte será json gravado ou arquivo fornecido pelo usuário
+    
+    ''' Precisa retornar só o DataFrame dos Dados'''
+    nomes_2020_menos = [str(ano) for ano in range(2015, 2021)]
+    if json:
+        dados = pd.read_json(r"data\processed\data_series.json")  
+    else:        
+        dados = pd.read_csv(arquivo, sep=";")
+        for ano in nomes_2020_menos:
+            if ano in arquivo:                             # se o arquivo for de ano <= 2020 selecioa as colunas correspondentes e sai da função
+                dados = dados.loc[:, fields_2020_menos]
+                return dados
+        dados = dados.loc[:, fields]
+    return dados
+
+@st.cache_data(ttl=3600)
 def primeira_agregacao(df_api): # fonte será 'API' ou 'cache', se der erro na API, a função deve buscar no cache 
     
+    '''
+    Retorna um DataFrame - df_agregado - com as colunas:
+    NM_BAIRRO - TOTAL_CASOS - TOTAL_HOSPITALIZACOES - TOTAL_OBITOS
+    
+    e um DataFrame - df_hospitalizacoes - filtrando apenas os casos em que ocorreu hospitalização
+    '''
     # RETIRAR CASOS NOTIFICADOS, MAS DESCARTADOS NA CLASSIFICAÇÃO FINAL        
     df_casos_confirmados = df_api[df_api['CLASSI_FIN'] != 5]
     
-    '''
-    df_confirmados = dados[dados['CLASSI_FIN'] != 5]
-    
-    '''
-    
     # CONSIDERAR CASOS COM OCORRÊNCIA DE HOSPITALIZAÇÂO - AQUI TEMOS OS CASOS NÃO DESCARTADOS EM QUE HOUVE HOSPITALIZAÇÃO    
     df_hospitalizacoes = df_casos_confirmados[df_casos_confirmados['HOSPITALIZ'] == 2].reset_index(drop=True)   
-    
+
     # ----------------------------------------------------------------------
     # OPERAÇÃO DIRETA PARA CONTAGEM DOS CASOS POR BAIRRO
     # ----------------------------------------------------------------------    
     df_bairros = df_casos_confirmados['NM_BAIRRO'].value_counts().reset_index()
     df_bairros.columns = ['NM_BAIRRO', 'CONTAGEM']
-    
+
     # PROCESSAMENTO AGREGADO   
     df_agregado = (
         df_casos_confirmados.groupby('NM_BAIRRO')
@@ -135,7 +152,7 @@ def primeira_agregacao(df_api): # fonte será 'API' ou 'cache', se der erro na A
         )
         .reset_index()
     )  
-        
+
     return df_agregado, df_hospitalizacoes
 
 def criar_analise(dataframe_casos, dataframe_populacao):
@@ -158,61 +175,6 @@ def criar_analise(dataframe_casos, dataframe_populacao):
     df_completo = df_completo.drop(columns=["BAIRRO_MERGE"])
         
     return df_completo
-
-@st.cache_data(ttl=3600)
-def carregar_dados_casos(fonte): # fonte será 'API' ou 'cache', se der erro na API, a função busca no cache
-    
-    #df_chik = pd.read_csv(r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv", sep=";", encoding='utf-8')
-    df_chik = pd.read_csv(fonte, sep=";", encoding='utf-8')
-    
-    #df_chik['DT_OBITO_FORM'] = pd.to_timedelta(df_chik['DT_OBITO'], unit='D') + pd.Timestamp('1899-12-30') #transformação das colunas de data representadas por valores inteiros
-
-    colunas_analise = [
-        'NU_NOTIFIC', # placeholder para identificação de cada instância 
-        'NU_ANO', 
-        'DT_NASC',
-        'CS_SEXO',
-        'CS_ESCOL_N',
-        'NM_BAIRRO',
-        #'DT_OBITO_FORM', # retirar
-        'HOSPITALIZ',
-        'EVOLUCAO',
-        'CLASSI_FIN'
-        ]
-
-    df_filtrado_colunas = df_chik[colunas_analise]
-    
-    # ----------------------------------------------------------------------
-    # RETIRAR CASOS NOTIFICADOS, MAS DESCARTADOS NA CLASSIFICAÇÃO FINAL
-    # ----------------------------------------------------------------------    
-    df_confirmados = df_filtrado_colunas[df_filtrado_colunas['CLASSI_FIN'] != 5]
-    
-    # ----------------------------------------------------------------------
-    # CONSIDERAR CASOS COM OCORRÊNCIA DE HOSPITALIZAÇÂO - AQUI TEMOS OS CASOS NÃO DESCARTADOS EM QUE HOUVE HOSPITALIZAÇÃO
-    # ----------------------------------------------------------------------    
-    df_hospitalizacoes = df_confirmados[df_filtrado_colunas['HOSPITALIZ'] == 2].reset_index(drop=True)   
-    
-    # ----------------------------------------------------------------------
-    # OPERAÇÃO DIRETA PARA CONTAGEM DOS CASOS POR BAIRRO
-    # ----------------------------------------------------------------------    
-    df_bairros = df_confirmados['NM_BAIRRO'].value_counts().reset_index()
-    df_bairros.columns = ['NM_BAIRRO', 'CONTAGEM']
-    
-    # ----------------------------------------------------------------------
-    # PROCESSAMENTO AGREGADO
-    # ----------------------------------------------------------------------
-    
-    df_agregado = (
-        df_confirmados.groupby('NM_BAIRRO')
-        .agg(
-            TOTAL_CASOS=('NM_BAIRRO', 'size'),
-            TOTAL_HOSPITALIZACOES=('HOSPITALIZ', lambda x: (x == 2).sum()),
-            TOTAL_OBITOS=('EVOLUCAO', lambda x: (x == 2).sum()) # Óbito pelo agravo
-        )
-        .reset_index()
-    )  
-        
-    return df_agregado, df_hospitalizacoes
 
 @st.cache_data(ttl=3600)
 def carregar_dados_populacao():
@@ -253,3 +215,14 @@ def carregar_noticias():
 # #print(agregado[agregado['NU_ANO'] == '2022'].tail(), "\n", hospitalizacoes[hospitalizacoes['NU_ANO'] == '2022'].tail())
 # print(agregado.tail(), "\n", hospitalizacoes[hospitalizacoes['NU_ANO'] == 2022].tail())
 # print(df.tail())
+
+# Orquestração
+
+# dados = pd.read_json(r"data\processed\data_series.json")
+# agregado, hosp, confirm = primeira_agregacao(dados)       # eu exibo hosp como amostra dos dados
+#                                                           # depois exibo análise
+# pop = carregar_dados_populacao()
+# analise = criar_analise(agregado, pop)
+# analise1 = criar_analise(hosp, pop)
+
+# print(2 + 2)
