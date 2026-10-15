@@ -5,15 +5,16 @@ from pathlib import Path
 import pandas as pd
 import re
 import time
+import os
 
-url = "https://agenciabrasil.ebc.com.br"
-nome_agente = "INFNET-TESTEPB-IA/1.0 (material didatico; contato: marcelo.aalves@al.infnet.edu.br)"
-terminacao = "saude"
+#url = "https://agenciabrasil.ebc.com.br"
+#nome_agente = "INFNET-TESTEPB-IA/1.0 (material didatico; contato: marcelo.aalves@al.infnet.edu.br)"
+#terminacao = "saude"
 
 def check_robots(site, agente, terminacoes):
     # 1. Definir o site e um User-Agent transparente com identificação e contato
     SITE = site
-    AGENTE = nome_agente
+    AGENTE = agente
 
     # 2. Obter o robots.txt do site
     url_robots = f"{SITE}/robots.txt"
@@ -37,7 +38,7 @@ def check_robots(site, agente, terminacoes):
     return urls_permissoes, delay
 
 
-def get_snapshot(sites_permissoes, agente, espera):
+def get_snapshot_html(sites_permissoes, agente, espera):
     ''' Verifica as permissões do site, e salva o snapshot do html'''
     
     for site in sites_permissoes:
@@ -61,26 +62,22 @@ def get_snapshot(sites_permissoes, agente, espera):
         
             time.sleep(espera)
 
-#permissoes, tempo_espera = check_robots(url, nome_agente, ["saude"])
-#get_snapshot(permissoes, nome_agente, tempo_espera)
-#time.sleep(tempo_espera)
-
-def get_materias(pagina_coletada_html, url_base, espera):
+def get_corpo_materias(pagina_coletada_html, url_base, espera):
+    
     '''
+    
     Lê o html salvo do snapshop e coleta:
-    -os títulos
-    -links e
-    -textos
-    de cada matéria
+        -os títulos
+        -links e
+        -textos;
+        
+        de cada matéria
+    
     '''    
     sopa = bs(pagina_coletada_html, "html.parser")
     
     news = []
-    
-    titulos = []
-    links = []    
-    materias = []
-    horarios_origem = []
+    #horarios_origem = []
 
     noticias = sopa.select('a.titulo-noticia')
     print(f"\nTotal de noticias encontrados: {len(noticias)}")
@@ -118,31 +115,33 @@ def get_materias(pagina_coletada_html, url_base, espera):
             if tag != noticias[-1]:
                 print("Seguindo para a matéria seguinte...")
             time.sleep(espera)
-            continue
-    
+            continue    
     return news
 
-def gravar_csv_noticias(materias_composto):
-    """ df_news = pd.DataFrame({
-        "titulo_noticia": headers,
-        "link_materia": enderecos,
-        "texto_materia": textos
-    }) """
-    
-    df_news = pd.DataFrame(materias_composto)
-    
+def gravar_csv_noticias(materias_composto, arquivo_destino):                                          
+    df_news = pd.DataFrame(materias_composto)    
+    if arquivo_destino:
+        os.rename(arquivo_destino, r".\data\processed\news_old.csv")                                               # Fazer uma cópia do arquivo antigo como backup
     df_news.to_csv(
-        r".\data\processed\news_novo.csv", index=False
+        arquivo_destino, index=False
         )
 
-def gravar_txt_noticias(header, endereco, texto):
-    #titulo_noticia,resumo_materia,hora_publi_origem
-    "oi"
-    
-""" caminho_snapshot = Path("data/raw/dengue_chik_snapshot.html")
-html_bruto = caminho_snapshot.read_text(encoding="utf-8")
-
-url_inicio = 'https://agenciabrasil.ebc.com.br/'
-nome_noticia, link_noticia, texto_noticia = get_materias(html_bruto, url_inicio, tempo_espera)
-
-gravar_csv_noticias(nome_noticia, link_noticia, texto_noticia) """
+def gravar_txt_noticias(news_dici_or_csv, arquivo_destino, from_dici=True):    
+    ''' 
+    Rebece o dicionario de get_corpo_materias ou trabalha com um DataFrame lendo do csv de notícias salvo
+    Exemplo de chamada por csv: gravar_txt_noticias(r".\data\processed\news_novo.csv", r".\data\processed\news_texto.txt", from_dici=False)
+    '''
+    if from_dici:
+        df_news = pd.DataFrame(news_dici_or_csv)
+    else:
+        df_news = pd.read_csv(news_dici_or_csv)
+        print("Dicionário não foi passado, lendo a partir do csv salvo em '.\data\processed\news.csv'")
+    with open(arquivo_destino, "w", encoding="utf-8") as file_news:   
+        for index, row in df_news.iterrows():            
+            file_news.write(row['titulo'] + '\n' + row['texto_materia'])
+            if index != len(df_news) - 1:
+                file_news.write("\n")
+    if from_dici:
+        print("Notícias gravadas a partir da última coleta ('agora')")
+    else:
+        print("Notícias gravadas a partir do arquivo csv salvo em '.\data\processed\news.csv'")

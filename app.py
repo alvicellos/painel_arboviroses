@@ -7,6 +7,12 @@ import time
 from src.carga_preparacao import carregar_dados_casos, carregar_dados_populacao, criar_analise, carregar_noticias
 
 # ----------------------------------------------------------------------
+# Configuração da página
+# ----------------------------------------------------------------------
+
+st.set_page_config(layout="wide")
+
+# ----------------------------------------------------------------------
 # DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
 # ----------------------------------------------------------------------
 
@@ -42,6 +48,8 @@ if st.session_state.arquivo_usuario == None:
 
 df_populacao = carregar_dados_populacao()
 
+# REORDENAR O DF_ANÁLSE COM AS COLUNAS DE MAIOR INTERESSE PRIMEIRO
+
 # Precisa ?
 if st.session_state.arquivo_usuario == None:
     arquivo = r"data/resources_b300a634-1ab7-49fc-8592-4b45227822a8_casos-confirmados-de-chikungunya-em-2025.csv"    
@@ -73,7 +81,7 @@ st.divider()
 # TELA
 # ----------------------------------------------------------------------
 
-st.title('Gravidade clínica dos casos de arboviroses - Chikungunya e Dengue - na cidade do Recife')
+st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife 🦈')
 st.divider()
 
 st.subheader("Problema de negócio e objetivos:")
@@ -219,7 +227,7 @@ st.write("\n")
 for index, row in df_news.iterrows():
     f"""###### {row['titulo']}"""
     #f"""*Publicado em: {row['hora_publi_origem']}*"""
-    f"""*Link para a matérias: ({row['link']})*"""
+    f"""*Link para a matéria: ({row['link']})*"""
     f"""*Trecho da matéria...*"""
     f"""{row["texto_materia"][:250]}..."""
 

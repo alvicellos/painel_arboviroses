@@ -1,5 +1,8 @@
 .venv
 data/raw/*.html
+data/sandbox
 misc/
 src/__pycache__
+src/old/
 *.pyc
+
