@@ -7,10 +7,6 @@ import re
 import time
 import os
 
-#url = "https://agenciabrasil.ebc.com.br"
-#nome_agente = "INFNET-TESTEPB-IA/1.0 (material didatico; contato: marcelo.aalves@al.infnet.edu.br)"
-#terminacao = "saude"
-
 def check_robots(site, agente, terminacoes):
     # 1. Definir o site e um User-Agent transparente com identificação e contato
     SITE = site
@@ -39,7 +35,11 @@ def check_robots(site, agente, terminacoes):
 
 
 def get_snapshot_html(sites_permissoes, agente, espera):
-    ''' Verifica as permissões do site, e salva o snapshot do html'''
+    ''' Verifica as permissões do site, salva o snapshot do html e retorna o html para extração das notícias
+        Retorna um dicionário: {url : html}
+    '''
+    
+    url_html = {}
     
     for site in sites_permissoes:
         if sites_permissoes[site] == True:
@@ -54,15 +54,22 @@ def get_snapshot_html(sites_permissoes, agente, espera):
             resposta.encoding = resposta.apparent_encoding or "utf-8"
 
             # 5. Criar o caminho do arquivo em data/raw/ e gravar o texto do HTML
-            destino = Path("data/raw/dengue_chik_snapshot.html")
+            # destino = Path("data/raw/dengue_chik_snapshot.html")
+            destino = Path(f"data/raw/{site.split("/")[-1]}.html")
             destino.parent.mkdir(parents=True, exist_ok=True)
 
             destino.write_text(resposta.text, encoding="utf-8")                                 
             print(f"Snapshot salvo com sucesso em: {destino}")
         
             time.sleep(espera)
+            
+            url_html[site] = resposta.text 
+            
+    return url_html
 
-def get_corpo_materias(pagina_coletada_html, url_base, espera):
+def get_corpo_materias(pagina_coletada_html, espera):
+    
+    # Adicionar WAITs
     
     '''
     
@@ -71,7 +78,7 @@ def get_corpo_materias(pagina_coletada_html, url_base, espera):
         -links e
         -textos;
         
-        de cada matéria
+        de cada matéria (entra no link de cada matéria)
     
     '''    
     sopa = bs(pagina_coletada_html, "html.parser")
@@ -80,14 +87,11 @@ def get_corpo_materias(pagina_coletada_html, url_base, espera):
     #horarios_origem = []
 
     noticias = sopa.select('a.titulo-noticia')
-    print(f"\nTotal de noticias encontrados: {len(noticias)}")
-    for i, tag in enumerate(noticias, 1):
+    print(f"\nTotal de noticias encontradas: {len(noticias)}")
+    for i, tag in enumerate(noticias, 1):    
         titulo = tag.get_text().strip()
         link = r'https://agenciabrasil.ebc.com.br' + tag['href']
-        #titulos.append(titulo)
-        #links.append(link)               
         
-        #for index, noticia in enumerate(links):        
         print(f'{i} - Consultando matéria: "{titulo}"\n  {link}...') 
         resposta_link = requests.get(link)              
         
@@ -116,19 +120,24 @@ def get_corpo_materias(pagina_coletada_html, url_base, espera):
                 print("Seguindo para a matéria seguinte...")
             time.sleep(espera)
             continue    
+    
     return news
 
-def gravar_csv_noticias(materias_composto, arquivo_destino):                                          
-    df_news = pd.DataFrame(materias_composto)    
-    if arquivo_destino:
-        os.rename(arquivo_destino, r".\data\processed\news_old.csv")                                               # Fazer uma cópia do arquivo antigo como backup
+def gravar_csv_noticias(dicionario_materias, arquivo_destino):                                          
+    df_news = pd.DataFrame(dicionario_materias)    
+    arquivo_old = r".\data\processed\news_old.csv"
+    if os.path.exists(arquivo_old):
+        os.remove(arquivo_old)
+    if os.path.exists(arquivo_destino):
+        os.rename(arquivo_destino, arquivo_old)    
     df_news.to_csv(
         arquivo_destino, index=False
         )
+    print("CSV salvo !")
 
 def gravar_txt_noticias(news_dici_or_csv, arquivo_destino, from_dici=True):    
     ''' 
-    Rebece o dicionario de get_corpo_materias ou trabalha com um DataFrame lendo do csv de notícias salvo
+    Recebe o dicionario de get_corpo_materias ou trabalha com um DataFrame lendo do csv de notícias salvo
     Exemplo de chamada por csv: gravar_txt_noticias(r".\data\processed\news_novo.csv", r".\data\processed\news_texto.txt", from_dici=False)
     '''
     if from_dici:
@@ -136,6 +145,13 @@ def gravar_txt_noticias(news_dici_or_csv, arquivo_destino, from_dici=True):
     else:
         df_news = pd.read_csv(news_dici_or_csv)
         print("Dicionário não foi passado, lendo a partir do csv salvo em '.\data\processed\news.csv'")
+        
+    arquivo_old = r".\data\processed\news_texto_old.txt"
+    if os.path.exists(arquivo_old):
+        os.remove(arquivo_old)
+    if os.path.exists(arquivo_destino):
+        os.rename(arquivo_destino, arquivo_old)       
+        
     with open(arquivo_destino, "w", encoding="utf-8") as file_news:   
         for index, row in df_news.iterrows():            
             file_news.write(row['titulo'] + '\n' + row['texto_materia'])

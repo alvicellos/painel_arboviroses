@@ -2,9 +2,11 @@
 
 ## Fontes
 
-* A fonte de dados serão os arquivos dispoíveis em https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya, que compreendem o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025. ~~Neste momento, a aplicação carrega por padrão os dados de 2025, salvos em csv.~~ O usuário pode anexar um arquivo referente a outro ano da série histórica para visualizar o conteúdo a partir dos dados ali contidos.
+* ~~A fonte de dados serão os arquivos dispoíveis em https:\//dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya, que compreendem o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025. Neste momento, a aplicação carrega por padrão os dados de 2025, salvos em csv.~~ 
 
-* Os dados estão sendo carregaos via API, a partir do endpoint https://dados.recife.pe.gov.br/api/action/
+* Os dados estão sendo carregaos via API, a partir do endpoint https://dados.recife.pe.gov.br/api/action/, compreendendo o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025.
+
+* O usuário pode anexar um arquivo referente a algum ano da série histórica para realizar uma análise exclusiva a partir do conteúdo ali contidos. (Sugestão é trazer dados de outras localidades, desque que no formato indicado)
 
 * API geográfica da Prefeitura do Recife, em: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer, com dados de população colhidos no censo de 2002, já agregados por bairro
 
@@ -12,7 +14,8 @@
 
 ## Características dos dados
 
-Os dados estão na forma de arquivos csv, são, portando estrutudados.
+~~Os dados estão na forma de arquivos csv~~, são, portando estrutudados.  
+Agora csv é apenas o fornecido pelo usuário.
 Para nossa análise as colunas utilizadas serão: 
 
 * ~~NU_NOTIFIC (Numérica, inteira, identifica o número do reporte)~~
@@ -25,28 +28,16 @@ Para nossa análise as colunas utilizadas serão:
 * CLASSI_FIN, (numérica, inteiro, representa a classificação final em relação à doença)
 
 Para o escopo da análise são imprescindíveis as colunas NU_ANO e NM_BAIRRO. ~~e DT_OBITO. A coluna NU_NOTIFIC é mantida para identificar cada registro.~~  
-
 A coluna **CLASSI_FIN** é estritamente necessária, pois confirma se a causa do estado do paciente realmente foi a doença: (5-Descartado
 10-Dengue
 11-Dengue com
 sinais de alarme
 12-Dengue grave
 13-Chikungunya
-).
-
-Para efeitos de consistência, os registros com `CLASSI_FIN = 5` são excluídos da análise.
-
-Avaliar ao final se vamos incluir apenas 13 ou alargar a análise incluindo comparações com resultados positivos para dengue.
-
-<!-- dá pra escrever comentários no markdown, se a gente quiser
-```python
-def funcao_python():
-    return 2 + 2
-```
--->
-  
-A referências às demais colunas (tachadas), neste momento, são mantidas na documentação com a intenção de trazer indicadores sócio-demográficos mínimos dos pacientes em iterações futuras do projeto.  
-
+).  
+Para efeitos de consistência, os registros com `CLASSI_FIN = 5` são excluídos da análise.  
+Avaliar ao final se vamos incluir apenas 13 ou alargar a análise incluindo comparações com resultados positivos para dengue.  
+As referências às demais colunas (tachadas), neste momento, são mantidas na documentação com a intenção de trazer indicadores sócio-demográficos mínimos dos pacientes em iterações futuras do projeto.  
 Para efeitos de aproximação com a realidade e ganho de eficiência, com a implementação da coleta de dados via API, apenas as colunas efetivamente utlizadas serão mantidas na consulta.
 
 
@@ -89,3 +80,11 @@ Classificação final
 1 Confirmado
 2 Descartado
 8 Inconclusivo
+
+
+<!-- dá pra escrever comentários no markdown, se a gente quiser
+```python
+def funcao_python():
+    return 2 + 2
+```
+-->
