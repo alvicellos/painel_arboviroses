@@ -16,35 +16,15 @@ st.set_page_config(layout="wide")
 # DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
 # ----------------------------------------------------------------------
 
-palavras_chave = [
-    "arbovirose",
-    "dengue",
-    "chikungunya",
-    "zika",
-    "Aedes aegypti",
-    "mosquito",
-    "vetor",
-    "epidemiologia",
-    "incidência",
-    "prevalência",
-    "hospitalização",
-    "mortalidade",
-    "letalidade",
-    "surto",
-    "vigilância epidemiológica",
-    "pernilongo",
-    "muriçoca",
-]
-
 if "dados_exibir" not in st.session_state:    
-    st.session_state.dados_exibir = "Exibir dados originais (ano de 2025)"
+    st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"
 if "arquivo_usuario" not in st.session_state:    
     st.session_state.arquivo_usuario = None
 if "subtitulo_dados" not in st.session_state:    
     st.session_state.subtitulo_dados = ""    
 
 if st.session_state.arquivo_usuario == None:
-    st.session_state.dados_exibir = "Exibir dados originais (ano de 2025)"   
+    st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"   
 
 df_populacao = carregar_dados_populacao()
 
@@ -60,7 +40,6 @@ df_populacao = carregar_dados_populacao()
 
 dados = carregar_dados_fonte() # carregar_dados_fonte(arquivo=None, json=True)
 df_casos_carregados, df_hospitalizacoes = primeira_agregacao(dados)
-
 df_analise = criar_analise(df_casos_carregados, df_populacao)
 
 # Orquestração
@@ -71,7 +50,7 @@ df_analise = criar_analise(df_casos_carregados, df_populacao)
 # analise = criar_analise(agregado, pop)
 # analise1 = criar_analise(hosp, pop)
 
-if st.session_state.dados_exibir == "Exibir dados originais (ano de 2025)":
+if st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
     if "df_casos_carregados" not in st.session_state:
         st.session_state.df_casos_carregados = df_casos_carregados    
     if "df_hospitalizacoes" not in st.session_state:
@@ -79,12 +58,12 @@ if st.session_state.dados_exibir == "Exibir dados originais (ano de 2025)":
     if "df_analise" not in st.session_state:
         st.session_state.df_analise = df_analise    
     if "subtitulo_dados" not in st.session_state:
-        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife (2025)'''    
+        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''    
     # Para recarregar os dados originais na exclusão do arquivo carregado pelo usuário
     st.session_state.df_casos_carregados = df_casos_carregados
     st.session_state.df_hospitalizacoes = df_hospitalizacoes
     st.session_state.df_analise = df_analise
-    st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife (2025)'''
+    st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''
 
 st.divider()
 
@@ -92,10 +71,10 @@ st.divider()
 # TELA
 # ----------------------------------------------------------------------
 
-st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife 🦈')
+st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife')
 st.divider()
 
-st.subheader("Problema de negócio e objetivos:")
+#st.subheader("Problema de negócio e objetivos:")
 #st.write("Verificar os três bairros do município do Recife com maior proporção de mortes por casos confirmados de chikungunya")
 
 st.write("Orientar gestores em saúde a respeito das localidades de ocorrência dos casos mais graves de chikungunya, a partir da proporção de hospitalizações por casos confirmados e da incidência total de casos na população.")
@@ -118,9 +97,12 @@ st.session_state.subtitulo_dados
 st.session_state.df_hospitalizacoes
 
 ''' ### Ocorrência por bairros:'''
+'''###### Agregar por ano:'''
+
 st.session_state.df_analise
 
 ''' #### Filtre e ordene a visualização dos dados com os controles abaixo:'''
+'''###### Agregar por ano:'''
 
 lista_bairros = list(st.session_state.df_analise['NM_BAIRRO'])
 if "selecao_multi" not in st.session_state:
@@ -182,7 +164,7 @@ if arquivo_usuario is not None:
     
     radio_rodar_arquivo = st.radio(
     "Escolha os dados que deseja exibir:",
-    ["Exibir dados originais (ano de 2025)", 
+    ["Exibir dados originais (2015 a 2025)", 
     "Exibir dados do usuário"]
     )    
     st.session_state.dados_exibir = radio_rodar_arquivo
@@ -202,7 +184,7 @@ if arquivo_usuario is not None:
             # Refatoração
             # dados = carregar_dados_fonte() # carregar_dados_fonte(arquivo=None, json=True)
             # df_casos_carregados, df_hospitalizacoes = primeira_agregacao(dados)
-            # df_analise = criar_analise(df_casos_carregados, df_populacao
+            # df_analise = criar_analise(df_casos_carregados, df_populacao)
             
             # Para trocar os dados exibidos
             st.session_state.df_casos_carregados = df_casos_carregados_1
@@ -211,52 +193,17 @@ if arquivo_usuario is not None:
             st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife - fornecido pelo usuário'''        
             st.rerun()
             
-        elif st.session_state.dados_exibir == "Exibir dados originais (ano de 2025)":
+        elif st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
             st.session_state.df_casos_carregados = df_casos_carregados
             st.session_state.df_hospitalizacoes = df_hospitalizacoes
             st.session_state.df_analise = df_analise
-            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife (2025)'''
+            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''
             st.rerun()          
 
-#if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir #dados originais (ano de 2025)":
+#if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir #dados originais (2015 a 2025)":
 #    st.rerun()
     
-st.divider()
-st.subheader("Últimas notícias relacionadas")
-df_news = carregar_noticias()
-
-contagem_chaves = 0
-for index, row in df_news.iterrows():
-    for palavra in palavras_chave:
-        if palavra in row['texto_materia']:
-            contagem_chaves += 1
-            
-num_palavras_chave, palavras_chave_resumos, col_palavras = st.columns(3)
-
-with num_palavras_chave:    
-    st.metric(label="Palavras chave:", value=len(palavras_chave))
-
-with palavras_chave_resumos:    
-    st.metric(label= "Frequência de palavras-chave", value=contagem_chaves)
-
-with col_palavras:
-    f'''Palavras-chave: *{", ".join(palavras_chave)}*'''
+# st.divider()
     
-st.write("\n")
-
-for index, row in df_news.iterrows():
-    f"""###### {row['titulo']}"""
-    #f"""*Publicado em: {row['hora_publi_origem']}*"""
-    f"""*Link para a matéria: ({row['link']})*"""
-    f"""*Trecho da matéria...*"""
-    f"""{row["texto_materia"][:250]}..."""
-
-# Seção será reincluída em versões próximas, com evoluções
-#""" #### Links úteis para as iniciativas e fontes de inspiração do projeto."""
-#st.markdown(f"Dataset (2025) em [dataset](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/b300a634-1ab7-49fc-8592-4b45227822a8)") 
-#st.markdown("*a plataforma disponibiliza dados a partir do ano de 2015*")
-#st.markdown(f"Metadados do registro de casos em JSON [metadados](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/2b62054a-6709-4678-b26d-595c92921a9b)")
-#st.markdown(f"ODS escolhido: [3 - Saúde e Bem-Estar](https://gtagenda2030.org.br/ods/ods3/)")
-
-if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (ano de 2025)":
+if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (2015 a 2025)":
     st.rerun()

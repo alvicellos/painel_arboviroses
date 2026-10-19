@@ -1,28 +1,27 @@
-from pathlib import Path
-from src.get_news import check_robots, get_snapshot_html, get_corpo_materias, gravar_csv_noticias, gravar_txt_noticias
 import matplotlib.pyplot as plt
+from collections import Counter
+import pandas as pd
 
-def contar_palavras_news():
-    exemplo = "teste casa teste casa rua outro dia dia outro fila norte"
-    contagem = {}
+excluir = [
+    'de', 'a', 'e', 'do', 'da', 'o', 'é', 'em', 'que', 'para', 'um', 'com', 'no', 'as', 'O', 'os', 
+    'uma', 'se', 'na', 'como', 'R$', 'à', 'não', 'nesta', 'ao', 'por', 'dos', 'às', 'das', 'r$'
+]
 
-    lista_palavras = exemplo.split()
-
-    for palavra in lista_palavras:
-        contagem[palavra] = contagem.get(palavra, 0) + 1
-
-    lista_tuplas = [(value, item) for item, value in contagem.items()]
+def contar_palavras_news(arquivo, slice):
+    with open(arquivo, "r", encoding="utf-8") as noticias:
+        texto = noticias.read().lower()        
+        lista_palavras = [palavra for palavra in texto.split(" ") if palavra != " " and palavra not in excluir]
+        contador = Counter(lista_palavras)
+    
+    lista_tuplas = [(value, item) for item, value in contador.items()]
     lista_tuplas.sort(reverse=True)
 
-    Y = [x[0] for x in lista_tuplas]
-    X = [x[1] for x in lista_tuplas]
-
-    # O prof usa uma função Count nativa do python
-
-    print(lista_tuplas)
-    print(contagem)
-
-    print(f"X: {X} Y: {Y}")
-
-    plt.bar(X, Y)
-    plt.show()
+    X = [x[1] for x in lista_tuplas[:slice]]   
+    Y = [x[0] for x in lista_tuplas[:slice]]
+    
+    df_palavras = pd.DataFrame({
+        "palavra" : X,
+        "ocorrencia": Y
+    })
+    
+    return X, Y, df_palavras

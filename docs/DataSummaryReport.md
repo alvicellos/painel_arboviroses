@@ -6,40 +6,37 @@
 
 * Os dados estão sendo carregaos via API, a partir do endpoint https://dados.recife.pe.gov.br/api/action/, compreendendo o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025.
 
-* O usuário pode anexar um arquivo referente a algum ano da série histórica para realizar uma análise exclusiva a partir do conteúdo ali contidos. (Sugestão é trazer dados de outras localidades, desque que no formato indicado)
+* O usuário pode anexar um arquivo referente a algum ano da série histórica para realizar uma análise exclusiva a partir do conteúdo ali contido. (Sugestão é trazer dados de outras localidades, desque que no formato indicado)
 
-* API geográfica da Prefeitura do Recife, em: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer, com dados de população colhidos no censo de 2002, já agregados por bairro
+* API geográfica da Prefeitura do Recife, em: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer, com dados de população colhidos no censo de 2002, já agregados por bairro.
 
-* Página da EBC para scraping, https://busca.ebc.com.br/nodes?utf8=%E2%9C%93&q=dengue+chikungunya, pesquisa de notícias provenientes de diferentes agências, resultado da consulta pelos termos 'dengue chikunghunya'. _Isto não ocorre mais:_ **estamos retirando as notícias diretamente das páginas de asuntos da EBC.**
+* ~~Página da EBC para scraping, https:\//busca.ebc.com.br/?site_id=agenciabrasil&q=dengue%20chikungunya, pesquisa de notícias provenientes de diferentes agências, resultado da consulta pelos termos 'dengue chikunghunya'. O robots.txt em https:\//busca.ebc.com.br não permite a coleta.~~ Página da [EBC](https://agenciabrasil.ebc.com.br/) para scraping, notícias coletadas das seções de assuntos.
 
 ## Características dos dados
 
-~~Os dados estão na forma de arquivos csv~~, são, portando estrutudados.  
-Agora csv é apenas o fornecido pelo usuário.
-Para nossa análise as colunas utilizadas serão: 
+~~Os dados estão na forma de arquivos csv~~ Os dados extraídos da API são estrutudados.  
+Com a coleta via API, diferentemente da carga por _csv_, apenas as colunas de interesse são extraídas:
 
-* ~~NU_NOTIFIC (Numérica, inteira, identifica o número do reporte)~~
+* ~~NU_NOTIFIC (Numérica, inteira, identifica o número do reporte) ?????~~
 * NU_ANO (Númerica, 4 dígitos, identifica o ano do reporte)
-* ~~DT_NASC (DD/MM/AAAA - data de nascimento do paciente)~~
-* ~~CS_SEXO (categórica - M, F - sexo do paciente)~~
-* ~~CS_ESCOL_N (numérica, inteiro, representa o grau de escolaridade do paciente)~~
+* DT_NASC (DD/MM/AAAA - data de nascimento do paciente)
+* CS_SEXO (categórica - M, F - sexo do paciente)
+* CS_ESCOL_N (numérica, inteiro, representa o grau de escolaridade do paciente)
 * NM_BAIRRO (textual, nome do bairro de residência do paciente)
 * ~~DT_OBITO (data de óbito do paciente, 5 dígitos, formato excel númerico - inteiro - para datas)~~ coluna é substituída pela coluna 'EVOLUCAO'
 * CLASSI_FIN, (numérica, inteiro, representa a classificação final em relação à doença)
 
-Para o escopo da análise são imprescindíveis as colunas NU_ANO e NM_BAIRRO. ~~e DT_OBITO. A coluna NU_NOTIFIC é mantida para identificar cada registro.~~  
-A coluna **CLASSI_FIN** é estritamente necessária, pois confirma se a causa do estado do paciente realmente foi a doença: (5-Descartado
+Sendo necessário incluir mais colunas na análise, basta acrescentá-las na lista da função que consulta a API.Para o escopo da análise são imprescindíveis as colunas NU_ANO e NM_BAIRRO. ~~e DT_OBITO. A coluna NU_NOTIFIC é mantida para identificar cada registro.~~ A coluna **CLASSI_FIN** é estritamente necessária, pois confirma se a causa do estado do paciente realmente foi a doença: (5-Descartado
 10-Dengue
 11-Dengue com
 sinais de alarme
 12-Dengue grave
 13-Chikungunya
-).  
-Para efeitos de consistência, os registros com `CLASSI_FIN = 5` são excluídos da análise.  
-Avaliar ao final se vamos incluir apenas 13 ou alargar a análise incluindo comparações com resultados positivos para dengue.  
-As referências às demais colunas (tachadas), neste momento, são mantidas na documentação com a intenção de trazer indicadores sócio-demográficos mínimos dos pacientes em iterações futuras do projeto.  
-Para efeitos de aproximação com a realidade e ganho de eficiência, com a implementação da coleta de dados via API, apenas as colunas efetivamente utlizadas serão mantidas na consulta.
+). Para efeitos de consistência, os registros com `CLASSI_FIN = 5` são excluídos da análise, garantindo que apenas casos confirmados da doença são considerados.  
+~~Avaliar ao final se vamos incluir apenas 13 ou alargar a análise incluindo comparações com resultados positivos para dengue.~~
+~~As referências às demais colunas (tachadas), neste momento, são mantidas na documentação com a intenção de trazer indicadores sócio-demográficos mínimos dos pacientes em iterações futuras do projeto.~~
 
+Agora csv é apenas o fornecido pelo usuário.
 
 ## Transformações
 

@@ -1,21 +1,20 @@
-#from pathlib import Path
-from get_news import check_robots, get_snapshot_html, get_corpo_materias, gravar_csv_noticias, gravar_txt_noticias
+from news_get import check_robots, get_snapshot_html, get_corpo_materias, gravar_csv_noticias, gravar_txt_noticias
 
 url = "https://agenciabrasil.ebc.com.br"
 nome_agente = "INFNET-TESTEPB-IA/1.0 (material didatico; contato: marcelo.aalves@al.infnet.edu.br)"
-terminacao = ["educacao", "saude", "geral"] # pegou uma matéria de política no meio
+terminacao = ["educacao", "saude", "geral"]
 
 def collect_news(url, nome_agente, terminacoes: list) -> dict:     
     toda_coleta_noticias = []
-
-    for terminacao in terminacoes[:1]:        
-        permissoes, tempo_espera = check_robots(url, nome_agente, terminacoes)                    
-        url_html = get_snapshot_html(permissoes, nome_agente, tempo_espera)       # melhorar o salvamento dos htmls, porque tem 1 html para cada tema   
-        for url, html in url_html.items():        
-            noticias = get_corpo_materias(html, tempo_espera)                     # falta imprimir o título # tem que baixar a página se não retorna código 500 a partir da 5ª matéria
-            print("Notícias:\n", noticias)
-            for noticia in noticias:
-                toda_coleta_noticias.append(noticia)                
+    #for terminacao in terminacoes:        
+    permissoes, tempo_espera = check_robots(url, nome_agente, terminacoes)       # check_robots contém loop                
+    url_html = get_snapshot_html(permissoes, nome_agente, tempo_espera)          
+    for url, html in url_html.items():
+        print(f"Assunto (terminação): ")        
+        noticias = get_corpo_materias(html, tempo_espera)                        # falta imprimir o título # tem que baixar a página se não retorna código 500 a partir da 5ª matéria
+        print("Notícias:\n", noticias)
+        for noticia in noticias:
+            toda_coleta_noticias.append(noticia)                
     
     return toda_coleta_noticias
 

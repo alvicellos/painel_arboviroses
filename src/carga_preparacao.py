@@ -106,16 +106,16 @@ def carregar_dados_api(colunas, colunas_2020_menos):
     return df
 
 @st.cache_data(ttl=3600)
-def carregar_dados_fonte(arquivo=None, json=True):         # fonte será json gravado ou arquivo fornecido pelo usuário
+def carregar_dados_fonte(arquivo_csv=None, json=True):         # fonte será json gravado ou arquivo fornecido pelo usuário
     
     ''' Precisa retornar só o DataFrame dos Dados'''
     nomes_2020_menos = [str(ano) for ano in range(2015, 2021)]
     if json:
         dados = pd.read_json(r"data\processed\data_series.json")  
     else:        
-        dados = pd.read_csv(arquivo, sep=";")
+        dados = pd.read_csv(arquivo_csv, sep=";")
         for ano in nomes_2020_menos:
-            if ano in arquivo:                             # se o arquivo for de ano <= 2020 selecioa as colunas correspondentes e sai da função
+            if ano in arquivo_csv:                             # se o arquivo for de ano <= 2020, seleciona as colunas correspondentes e sai da função
                 dados = dados.loc[:, fields_2020_menos]
                 return dados
         dados = dados.loc[:, fields]
@@ -204,25 +204,7 @@ def carregar_dados_populacao():
     return df_populacao
 
 # NOTÍCIAS
-# ----------------------------------------------------------------------
-def carregar_noticias():
-    df_noticias = pd.read_csv(r"./data/processed/news_novo.csv", encoding='utf-8')
+@st.cache_data(ttl=3600)
+def carregar_noticias():    
+    df_noticias = pd.read_csv(r"./data/processed/news.csv", encoding='utf-8')
     return df_noticias
-
-# testes
-# df = carregar_dados_api(fields, fields_2020_menos) OK
-# agregado, hospitalizacoes = primeira_agregacao(df)
-# #print(agregado[agregado['NU_ANO'] == '2022'].tail(), "\n", hospitalizacoes[hospitalizacoes['NU_ANO'] == '2022'].tail())
-# print(agregado.tail(), "\n", hospitalizacoes[hospitalizacoes['NU_ANO'] == 2022].tail())
-# print(df.tail())
-
-# Orquestração
-
-# dados = pd.read_json(r"data\processed\data_series.json")
-# agregado, hosp, confirm = primeira_agregacao(dados)       # eu exibo hosp como amostra dos dados
-#                                                           # depois exibo análise
-# pop = carregar_dados_populacao()
-# analise = criar_analise(agregado, pop)
-# analise1 = criar_analise(hosp, pop)
-
-# print(2 + 2)
