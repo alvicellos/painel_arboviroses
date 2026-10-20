@@ -28,7 +28,7 @@ df_populacao = carregar_dados_populacao()
 # Chamada da função: carregar_dados_fonte(arquivo=None, json=True)
 dados = carregar_dados_fonte()   
 df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)  # casos carregados são apenas os confirmados
-df_analise = criar_analise(df_bairros_hosp, df_populacao)
+df_analise = criar_analise(df_bairro_ano, df_populacao)
 
 # --------------------------------------------------------------------------------------------------------------------- SE NECESSÁRIo
 # Dados com as hospitalizações e sem as métricas
