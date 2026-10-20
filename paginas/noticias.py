@@ -23,7 +23,7 @@ palavras_chave = [
     "muriçoca",
 ]
 
-st.title("Últimas notícias relacionadas 📰")
+st.title("Últimas notícias 📰")
 st.divider()       
 
 
