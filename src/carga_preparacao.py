@@ -122,19 +122,20 @@ def carregar_dados_fonte(arquivo_csv=None, json=True):         # fonte será jso
     return dados
 
 @st.cache_data(ttl=3600)
-def primeira_agregacao(df_api): # fonte será 'API' ou 'cache', se der erro na API, a função deve buscar no cache 
+def agregacao_bairros(df_api): # fonte será 'API' ou 'cache', se der erro na API, a função deve buscar no cache 
     
-    '''
+    '''    
     Retorna um DataFrame - df_agregado - com as colunas:
-    NM_BAIRRO - TOTAL_CASOS - TOTAL_HOSPITALIZACOES - TOTAL_OBITOS
+    NM_BAIRRO - TOTAL_CASOS - TOTAL_HOSPITALIZACOES - TOTAL_OBITOS só com casos confirmados
     
     e um DataFrame - df_hospitalizacoes - filtrando apenas os casos em que ocorreu hospitalização
     '''
     # RETIRAR CASOS NOTIFICADOS, MAS DESCARTADOS NA CLASSIFICAÇÃO FINAL        
     df_casos_confirmados = df_api[df_api['CLASSI_FIN'] != 5]
     
+    # Essas linhas são desnecessárias
     # CONSIDERAR CASOS COM OCORRÊNCIA DE HOSPITALIZAÇÂO - AQUI TEMOS OS CASOS NÃO DESCARTADOS EM QUE HOUVE HOSPITALIZAÇÃO    
-    df_hospitalizacoes = df_casos_confirmados[df_casos_confirmados['HOSPITALIZ'] == 2].reset_index(drop=True)   
+    # df_hospitalizacoes = df_casos_confirmados[df_casos_confirmados['HOSPITALIZ'] == 1].reset_index(drop=True)   
 
     # ----------------------------------------------------------------------
     # OPERAÇÃO DIRETA PARA CONTAGEM DOS CASOS POR BAIRRO
@@ -143,23 +144,34 @@ def primeira_agregacao(df_api): # fonte será 'API' ou 'cache', se der erro na A
     df_bairros.columns = ['NM_BAIRRO', 'CONTAGEM']
 
     # PROCESSAMENTO AGREGADO   
-    df_agregado = (
+    df_bairro_com_hosp = (
         df_casos_confirmados.groupby('NM_BAIRRO')
         .agg(
             TOTAL_CASOS=('NM_BAIRRO', 'size'),
-            TOTAL_HOSPITALIZACOES=('HOSPITALIZ', lambda x: (x == 2).sum()),
+            TOTAL_HOSPITALIZACOES=('HOSPITALIZ', lambda x: (x == 1).sum()),
             TOTAL_OBITOS=('EVOLUCAO', lambda x: (x == 2).sum()) # Óbito pelo agravo
         )
         .reset_index()
     )  
+    
+    df_bairro_todos = (
+            df_casos_confirmados.groupby('NM_BAIRRO')
+            .agg(
+                TOTAL_CASOS=('NM_BAIRRO', 'size'),
+                #TOTAL_HOSPITALIZACOES=('HOSPITALIZ', lambda x: (x == 2).sum()),
+                #TOTAL_OBITOS=('EVOLUCAO', lambda x: (x == 2).sum()) # Óbito pelo agravo
+            )
+            .reset_index()
+        )
 
-    return df_agregado, df_hospitalizacoes
+    return df_bairro_com_hosp, df_bairro_todos
 
 def criar_analise(dataframe_casos, dataframe_populacao):
     
-    dataframe_casos['BAIRRO_MERGE'] = dataframe_casos['NM_BAIRRO'].str.upper().apply(unidecode)
+    dataframe_analise = dataframe_casos.copy()
+    dataframe_analise['BAIRRO_MERGE'] = dataframe_analise['NM_BAIRRO'].str.upper().apply(unidecode)
     dataframe_populacao['BAIRRO_MERGE'] = dataframe_populacao['NM_BAIRRO'].str.upper().apply(unidecode)
-    df_completo = dataframe_casos.merge(
+    df_completo = dataframe_analise.merge(
         dataframe_populacao[['BAIRRO_MERGE', 'POPULACAO']],
         on="BAIRRO_MERGE",
         how="left"
