@@ -1,6 +1,6 @@
 import streamlit as st
 
-""" #### Links úteis para as iniciativas e fontes de inspiração do projeto."""
+""" #### Links úteis para as iniciativas e fontes de inspiração do projeto"""
 
 st.markdown(f"Dataset (2025) em [dataset](https://dados.recife.pe.gov.br/pt_BR/dataset/casos-de-dengue-zika-e-chikungunya/resource/b300a634-1ab7-49fc-8592-4b45227822a8)") 
 st.markdown("*a plataforma disponibiliza dados a partir do ano de 2015*")

@@ -107,8 +107,10 @@ def carregar_dados_api(colunas, colunas_2020_menos):
 
 @st.cache_data(ttl=3600)
 def carregar_dados_fonte(arquivo_csv=None, json=True):         # fonte será json gravado ou arquivo fornecido pelo usuário
+    ''' 
+    Precisa retornar só o DataFrame dos Dados
+    '''
     
-    ''' Precisa retornar só o DataFrame dos Dados'''
     nomes_2020_menos = [str(ano) for ano in range(2015, 2021)]
     if json:
         dados = pd.read_json(r"data\processed\data_series.json")  
@@ -122,28 +124,34 @@ def carregar_dados_fonte(arquivo_csv=None, json=True):         # fonte será jso
     return dados
 
 @st.cache_data(ttl=3600)
-def agregacao_bairros(df_api): # fonte será 'API' ou 'cache', se der erro na API, a função deve buscar no cache 
-    
-    '''    
-    Retorna um DataFrame - df_agregado - com as colunas:
-    NM_BAIRRO - TOTAL_CASOS - TOTAL_HOSPITALIZACOES - TOTAL_OBITOS só com casos confirmados
-    
-    e um DataFrame - df_hospitalizacoes - filtrando apenas os casos em que ocorreu hospitalização
+def agregacao_bairros(df_api):    
     '''
-    # RETIRAR CASOS NOTIFICADOS, MAS DESCARTADOS NA CLASSIFICAÇÃO FINAL        
-    df_casos_confirmados = df_api[df_api['CLASSI_FIN'] != 5]
+    Retorna quantidade de casos (confirmados) agregado por bairro - df_bairro_todos
+    Quantidade de hospitalizações (pela doença, confirmadas) agregados por bairro - df_bairro_com_hosp    
+    NM_BAIRRO - TOTAL_CASOS
+    NM_BAIRRO - TOTAL_CASOS - TOTAL_HOSPITALIZACOES - TOTAL_OBITOS
+    '''
     
-    # Essas linhas são desnecessárias
-    # CONSIDERAR CASOS COM OCORRÊNCIA DE HOSPITALIZAÇÂO - AQUI TEMOS OS CASOS NÃO DESCARTADOS EM QUE HOUVE HOSPITALIZAÇÃO    
-    # df_hospitalizacoes = df_casos_confirmados[df_casos_confirmados['HOSPITALIZ'] == 1].reset_index(drop=True)   
-
+    # RETIRAR CASOS NOTIFICADOS, MAS DESCARTADOS NA CLASSIFICAÇÃO FINAL        
+    df_casos_confirmados = df_api[df_api['CLASSI_FIN'] != 5]   
+    
     # ----------------------------------------------------------------------
-    # OPERAÇÃO DIRETA PARA CONTAGEM DOS CASOS POR BAIRRO
-    # ----------------------------------------------------------------------    
+    # OPERAÇÃO DIRETA PARA CONTAGEM DOS CASOS POR BAIRRO       
     df_bairros = df_casos_confirmados['NM_BAIRRO'].value_counts().reset_index()
     df_bairros.columns = ['NM_BAIRRO', 'CONTAGEM']
 
     # PROCESSAMENTO AGREGADO   
+    df_bairro_todos = (
+        df_casos_confirmados
+        .groupby(['NM_BAIRRO', 'NU_ANO'])
+        .agg(
+            TOTAL_CASOS=('NM_BAIRRO', 'size'),
+        )
+        .reset_index()
+        .sort_values(['NM_BAIRRO', 'NU_ANO'])
+    )
+
+
     df_bairro_com_hosp = (
         df_casos_confirmados.groupby('NM_BAIRRO')
         .agg(
@@ -152,19 +160,25 @@ def agregacao_bairros(df_api): # fonte será 'API' ou 'cache', se der erro na AP
             TOTAL_OBITOS=('EVOLUCAO', lambda x: (x == 2).sum()) # Óbito pelo agravo
         )
         .reset_index()
-    )  
+    )
     
-    df_bairro_todos = (
-            df_casos_confirmados.groupby('NM_BAIRRO')
-            .agg(
-                TOTAL_CASOS=('NM_BAIRRO', 'size'),
-                #TOTAL_HOSPITALIZACOES=('HOSPITALIZ', lambda x: (x == 2).sum()),
-                #TOTAL_OBITOS=('EVOLUCAO', lambda x: (x == 2).sum()) # Óbito pelo agravo
+    df_bairro_ano = (
+        df_casos_confirmados
+        .groupby(['NM_BAIRRO', 'NU_ANO'])
+        .agg(
+            TOTAL_CASOS=('NM_BAIRRO', 'size'),
+            TOTAL_HOSPITALIZACOES=(
+                'HOSPITALIZ', lambda x: (x == 1).sum()
+            ),
+            TOTAL_OBITOS=(
+                'EVOLUCAO', lambda x: (x == 2).sum()
             )
-            .reset_index()
         )
+        .reset_index()
+        .sort_values(['NM_BAIRRO', 'NU_ANO'])
+    )
 
-    return df_bairro_com_hosp, df_bairro_todos
+    return df_bairro_todos, df_bairro_com_hosp, df_bairro_ano
 
 def criar_analise(dataframe_casos, dataframe_populacao):
     
@@ -180,6 +194,7 @@ def criar_analise(dataframe_casos, dataframe_populacao):
     # Cálculo da indicência por 100k habitantes
     df_completo["INCIDENCIA_100K"] = (
         df_completo["TOTAL_CASOS"] / df_completo["POPULACAO"]) * 100_000   
+    df_completo["INCIDENCIA_100K"] = df_completo["INCIDENCIA_100K"].round(2)
     
     # Cálculo do percentual de internações por casos
     df_completo['PERC_CASOS_HOSP'] = ((df_completo['TOTAL_HOSPITALIZACOES'] / df_completo['TOTAL_CASOS']) * 100 )

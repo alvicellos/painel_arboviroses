@@ -6,16 +6,10 @@ import streamlit as st
 import time
 from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, carregar_noticias
 
-# ----------------------------------------------------------------------
-# Configuração da página
-# ----------------------------------------------------------------------
-
+# --------------------------------------------------------------------------------------------------------------------- Configuração da página
 st.set_page_config(layout="wide")
 
-# ----------------------------------------------------------------------
-# DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
-# ----------------------------------------------------------------------
-
+# --------------------------------------------------------------------------------------------------------------------- DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
 if "dados_exibir" not in st.session_state:    
     st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"
 if "arquivo_usuario" not in st.session_state:    
@@ -26,15 +20,21 @@ if "subtitulo_dados" not in st.session_state:
 if st.session_state.arquivo_usuario == None:
     st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"   
 
-# --------------------------------------------------------------------------------------------------- CARGA DE DADOS API POPULAÇÃO
+# --------------------------------------------------------------------------------------------------------------------- CARGA DADOS POPULAÇÃO
 df_populacao = carregar_dados_populacao()
 
 # REORDENAR O DF_ANÁLSE COM AS COLUNAS DE MAIOR INTERESSE PRIMEIRO
-
-dados = carregar_dados_fonte()                                                                        # carregar_dados_fonte(arquivo=None, json=True)
-df_bairros_hosp, df_bairros_todos = agregacao_bairros(dados)                                          # casos carregados são apenas os confirmados
+# --------------------------------------------------------------------------------------------------------------------- CARGA DADOS DOENÇA
+# Chamada da função: carregar_dados_fonte(arquivo=None, json=True)
+dados = carregar_dados_fonte()   
+df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)  # casos carregados são apenas os confirmados
 df_analise = criar_analise(df_bairros_hosp, df_populacao)
 
+# --------------------------------------------------------------------------------------------------------------------- SE NECESSÁRIo
+# Dados com as hospitalizações e sem as métricas
+# df_bairro_ano
+
+# --------------------------------------------------------------------------------------------------------------------- OUTROS CONTROLES DE FLUXO PARA A PÁGINA (NO RERUN)
 if st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
     if "df_bairros_hosp" not in st.session_state:
         st.session_state.df_bairros_hosp = df_bairros_hosp    
@@ -43,17 +43,16 @@ if st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
     if "df_analise" not in st.session_state:
         st.session_state.df_analise = df_analise    
     if "subtitulo_dados" not in st.session_state:
-        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''    
+        st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''    
     # Para recarregar os dados originais na exclusão do arquivo carregado pelo usuário
     st.session_state.df_bairros_hosp = df_bairros_hosp
     st.session_state.df_bairros_todos = df_bairros_todos
     st.session_state.df_analise = df_analise
-    st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''
-
+    st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''
+    
+# ---------------------------------------------------------------------------------------------------------------------  TELA
 st.divider()
-
-# --------------------------------------------------------------------------------------------------- TELA
-st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife')
+st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife:')
 st.divider()
 
 #st.subheader("Problema de negócio e objetivos:")
@@ -74,22 +73,15 @@ st.write("Orientar gestores em saúde a respeito das localidades de ocorrência 
 #     '''
 #     )
 
-# Registros de casos confirmados de dengue ou chikungunya na cidade do Recife (ano ou usuário)
-
-
-# --------------------------------------------------------------------------------------------------- SUBTÍTULO
+# --------------------------------------------------------------------------------------------------------------------- SUBTÍTULO
 st.session_state.subtitulo_dados
 
-# --------------------------------------------------------------------------------------------------- UM DOS DOIS COM A ANÁLISE CORRETA
-''' ### Um dos dois com a análise correta '''
+# --------------------------------------------------------------------------------------------------------------------- UM DOS DOIS COM A ANÁLISE CORRETA
 st.session_state.df_bairros_todos
-st.session_state.df_bairros_hosp
+#st.session_state.df_bairros_hosp #excluído
 
-# --------------------------------------------------------------------------------------------------- OCORRÊNCIA POR BAIRROS
-# --------------------------------------------------------------------------------------------------- AGREGAR POR ANO
+# --------------------------------------------------------------------------------------------------------------------- OCORRÊNCIA POR BAIRROS
 ''' ### Ocorrência por bairros:'''
-'''###### Agregar por ano:'''
-
 st.session_state.df_analise
 
 ''' #### Filtre e ordene a visualização dos dados com os controles abaixo:'''
@@ -165,15 +157,9 @@ if arquivo_usuario is not None:
         time.sleep(1.5)        
         if st.session_state.dados_exibir == "Exibir dados do usuário":
             
-            dados_usuario = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)
-            # df_bairros_hosp_1, df_bairros_todos_1 = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)
-            df_bairros_hosp_1, df_bairros_todos_1 = agregacao_bairros(dados_usuario)
-            df_analise_1 = criar_analise(df_bairros_hosp_1, df_populacao)           
-            
-            # Refatoração
-            # dados = carregar_dados_fonte() # carregar_dados_fonte(arquivo=None, json=True)
-            # df_bairros_hosp, df_bairros_todos = agregacao_bairros(dados)
-            # df_analise = criar_analise(df_bairros_hosp, df_populacao)
+            dados_usuario = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)            
+            df_bairros_todos_1, df_bairros_hosp_1, df_bairro_ano_1 = agregacao_bairros(dados_usuario)                       
+            df_analise_1 = criar_analise(df_bairro_ano_1, df_populacao)           
             
             # Para trocar os dados exibidos
             st.session_state.df_bairros_hosp = df_bairros_hosp_1
@@ -186,13 +172,8 @@ if arquivo_usuario is not None:
             st.session_state.df_bairros_hosp = df_bairros_hosp
             st.session_state.df_bairros_todos = df_bairros_todos
             st.session_state.df_analise = df_analise
-            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife'''
-            st.rerun()          
-
-#if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir #dados originais (2015 a 2025)":
-#    st.rerun()
-    
-# st.divider()
+            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''
+            st.rerun()
     
 if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (2015 a 2025)":
     st.rerun()
