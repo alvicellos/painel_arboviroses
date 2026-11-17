@@ -9,6 +9,7 @@ src/old/
 *.pyc
 __pycache__/
 */__pycache__/*
+/models
 
 # --- Temporários de sistema e de editor ---
 *.tmp
@@ -18,3 +19,4 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+

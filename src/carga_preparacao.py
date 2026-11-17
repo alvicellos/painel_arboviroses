@@ -112,7 +112,7 @@ def carregar_dados_populacao(download=False):
     '''
     Baixa os dados de população de 2022 se a api estiver online, caso
     contrátio lê os dados da base csv. Retorna a fonte utilizada.
-    Com download=True, salva os dados em 'data\processed\popupacao_2022.json'
+    Com download=True, salva os dados em "data\processed\popupacao_2022.json"
     '''
     
     try:
@@ -203,7 +203,7 @@ def carregar_dados_populacao(download=False):
 @st.cache_data(ttl=3600)
 def carregar_dados_fonte(arquivo_csv=None, json=True):         # fonte será json gravado ou arquivo fornecido pelo usuário
     ''' 
-    Pode carregar TANTO os dados da série histórica de casos da doença do json salvo em 'data\processed'
+    Pode carregar TANTO os dados da série histórica de casos da doença do json salvo em "data\processed"
     COMO um arquivo fornecido pelo usuário, com arquivo=nome_do_arquivo, json=False
     Retorna um DataFrame com os dados.
     Para carregar diretamente do json salvo, basta invocar sem parâmetros
@@ -546,3 +546,23 @@ def excluir_por_valor(
     except Exception as erro:
         print(f"Erro inesperado: {type(erro).__name__}: {erro}")
         raise
+
+def excluir_varios_valores(
+        df: pd.DataFrame,
+        coluna: str,
+        valores: list,
+        excluir_vazios: bool = False) -> tuple[pd.DataFrame, list[int]]:
+    
+    n_valores_excluidos = []
+        
+    for valor in valores:
+        df_pos_exclusao, n_linhas_excluidas, n_vazias_excluidas = excluir_por_valor(
+            df, 
+            coluna, 
+            valor, 
+            excluir_vazios=excluir_vazios)
+        
+        df = df_pos_exclusao
+        n_valores_excluidos.append(n_linhas_excluidas)
+    
+    return df, n_valores_excluidos

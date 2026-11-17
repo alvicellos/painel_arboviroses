@@ -153,10 +153,6 @@ def get_corpo_fiocruz(pagina_coletada_html, espera, max=None):
         de cada matéria (entra na página de cada matéria)
     '''    
     sopa = bs(pagina_coletada_html, "html.parser")
-    
-    with open(r"E:\IA_Aplicada\Projeto_de_bloco\painel_arboviroses\data\raw\noticias.html", "r", encoding="utf8") as file:
-        html = file.read()
-    sopa = bs(html, "html.parser")
     news = []    
     noticias = sopa.select('div.titulo-busca')
     

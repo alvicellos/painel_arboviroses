@@ -1,6 +1,6 @@
 import pandas as pd
 from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, carregar_noticias
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Body, Query, Path, HTTPException
 from typing import Literal
 from datetime import datetime
 
@@ -42,8 +42,6 @@ def serie_casos_arboviroses(
     }
 
 
-from fastapi import Path
-
 @app.get("/dadoscompletos/{ano}", tags=["dados completos"])
 def dados_completos_por_ano(
     ano: int = Path(ge=2015, le=2025, description="Ano dos registros")
@@ -78,9 +76,6 @@ def analisar_bairro(
         "total_registros": len(df_analise),
         "dados": registros
     }
-
-
-from fastapi import Body, HTTPException
 
 
 @app.post("/analisar-dados", tags=["Análise"], description="Considere CLASSI_FIN == 5: registro descartado; HOSPITALIZ == 1: houve hospitalização; EVOLUCAO == 2: óbito pelo agravo.")

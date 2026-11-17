@@ -54,12 +54,12 @@ st.divider()
 st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife:')
 st.divider()
 
-st.title('Vai mudar para: o que temos aqui ? 🦟🌡️🩺💊🩸🏥🩹🤕')
+st.title('O que temos aqui ? 🦟🌡️🩺💊🩸🏥🩹🤕')
 
 #st.subheader("Problema de negócio e objetivos:")
 #st.write("Verificar os três bairros do município do Recife com maior proporção de mortes por casos confirmados de chikungunya")
 
-st.write("Orientar gestores em saúde a respeito das localidades de ocorrência dos casos mais graves de chikungunya, a partir da proporção de hospitalizações por casos confirmados e da incidência total de casos na população.")
+#st.write("Orientar gestores em saúde a respeito das localidades de ocorrência dos casos mais graves de chikungunya, a partir da proporção de hospitalizações por casos confirmados e da incidência total de casos na população.")
 
 # st.subheader("KIPs:")
 # st.markdown(
@@ -74,107 +74,126 @@ st.write("Orientar gestores em saúde a respeito das localidades de ocorrência 
 #     '''
 #     )
 
-# --------------------------------------------------------------------------------------------------------------------- SUBTÍTULO
-st.session_state.subtitulo_dados
+# # --------------------------------------------------------------------------------------------------------------------- SUBTÍTULO
+# st.session_state.subtitulo_dados
 
-# --------------------------------------------------------------------------------------------------------------------- UM DOS DOIS COM A ANÁLISE CORRETA
-st.session_state.df_bairros_todos
-#st.session_state.df_bairros_hosp #excluído
+# # --------------------------------------------------------------------------------------------------------------------- UM DOS DOIS COM A ANÁLISE CORRETA
+# st.session_state.df_bairros_todos
+# #st.session_state.df_bairros_hosp #excluído
 
-# --------------------------------------------------------------------------------------------------------------------- OCORRÊNCIA POR BAIRROS
-''' ### Ocorrência por bairros:'''
-st.session_state.df_analise
+# # --------------------------------------------------------------------------------------------------------------------- OCORRÊNCIA POR BAIRROS
+# ''' ### Ocorrência por bairros:'''
+# st.session_state.df_analise
 
-''' #### Filtre e ordene a visualização dos dados com os controles abaixo:'''
-lista_bairros = list(st.session_state.df_analise['NM_BAIRRO'])
-if "selecao_multi" not in st.session_state:
-    options = st.multiselect("Selecione os bairros que deseja visualizar: ", lista_bairros)
-else:
-    options = st.multiselect("Selecione os bairros que deseja visualizar: ", lista_bairros, default=st.session_state.selecao_multi)
+# ''' #### Filtre e ordene a visualização dos dados com os controles abaixo:'''
+# lista_bairros = list(st.session_state.df_analise['NM_BAIRRO'])
+# if "selecao_multi" not in st.session_state:
+#     options = st.multiselect("Selecione os bairros que deseja visualizar: ", lista_bairros)
+# else:
+#     options = st.multiselect("Selecione os bairros que deseja visualizar: ", lista_bairros, default=st.session_state.selecao_multi)
 
-st.session_state.selecao_multi = options
+# st.session_state.selecao_multi = options
 
-option_radio = st.radio(
-    "Exibir os dados ordenados por (maior para o menor): ",
-    ["bairro (alfabética)", 
-     "total de casos",
-     "incidência por 100k/hab",
-     "percentual de hospitalizações"]
-    )
+# option_radio = st.radio(
+#     "Exibir os dados ordenados por (maior para o menor): ",
+#     ["bairro (alfabética)", 
+#      "total de casos",
+#      "incidência por 100k/hab",
+#      "percentual de hospitalizações"]
+#     )
 
-equivalencia_opcoes = {
-    "bairro (alfabética)": "NM_BAIRRO", 
-     "total de casos": "TOTAL_CASOS",
-     "incidência por 100k/hab": "INCIDENCIA_100K",
-     "percentual de hospitalizações": "PERC_CASOS_HOSP"
-    }
+# equivalencia_opcoes = {
+#     "bairro (alfabética)": "NM_BAIRRO", 
+#      "total de casos": "TOTAL_CASOS",
+#      "incidência por 100k/hab": "INCIDENCIA_100K",
+#      "percentual de hospitalizações": "PERC_CASOS_HOSP"
+#     }
 
-crescente_decrescente = {
-    "bairro (alfabética)": True , 
-    "total de casos": False,
-    "incidência por 100k/hab": False,
-    "percentual de hospitalizações": False
-         }
+# crescente_decrescente = {
+#     "bairro (alfabética)": True , 
+#     "total de casos": False,
+#     "incidência por 100k/hab": False,
+#     "percentual de hospitalizações": False
+#          }
 
-# if "opcao_radio" not in st.session_state:
-st.session_state.opcao_radio = option_radio
+# # if "opcao_radio" not in st.session_state:
+# st.session_state.opcao_radio = option_radio
 
-if len(options) > 0:
-    df_exibir = st.session_state.df_analise[st.session_state.df_analise['NM_BAIRRO'].isin(options)].sort_values(by=equivalencia_opcoes[option_radio], ascending=crescente_decrescente[option_radio])
-else:
-    df_exibir = st.session_state.df_analise.sort_values(by=equivalencia_opcoes[option_radio], ascending=crescente_decrescente[option_radio])
+# if len(options) > 0:
+#     df_exibir = st.session_state.df_analise[st.session_state.df_analise['NM_BAIRRO'].isin(options)].sort_values(by=equivalencia_opcoes[option_radio], ascending=crescente_decrescente[option_radio])
+# else:
+#     df_exibir = st.session_state.df_analise.sort_values(by=equivalencia_opcoes[option_radio], ascending=crescente_decrescente[option_radio])
 
-df_exibir
+# df_exibir
 
-st.markdown("##### Se quiser, você pode pode baixar os dados filtrados aqui:")
-st.download_button("Dados filtrados", df_exibir.to_csv(index=False), file_name="casos_filtro.csv")
+# st.markdown("##### Se quiser, você pode pode baixar os dados filtrados aqui:")
+# st.download_button("Dados filtrados", df_exibir.to_csv(index=False), file_name="casos_filtro.csv")
 
-st.divider()
+# st.divider()
 
-""" ### Aqui você pode acrescentar arquivos de outros anos a esta análise:"""
-st.write("Os arquivos estão disponíveis do Portal de Dados da Prefeitura da Cidade do Recife:")
-st.markdown('''
-[Casos de Dengue, Zika e Chikungunya](https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya)''')
+# """ ### Aqui você pode acrescentar arquivos de outros anos a esta análise:"""
+# st.write("Os arquivos estão disponíveis do Portal de Dados da Prefeitura da Cidade do Recife:")
+# st.markdown('''
+# [Casos de Dengue, Zika e Chikungunya](https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya)''')
 
-st.write("Escolha algum dos arquivos referentes aos 'Casos confirmados de Chikungunya'")
+# st.write("Escolha algum dos arquivos referentes aos 'Casos confirmados de Chikungunya'")
 
-arquivo_usuario = st.file_uploader("Submeta aqui o arquivo:", type=["csv"])
-st.session_state.arquivo_usuario = arquivo_usuario
+# arquivo_usuario = st.file_uploader("Submeta aqui o arquivo:", type=["csv"])
+# st.session_state.arquivo_usuario = arquivo_usuario
 
-if arquivo_usuario is not None:    
-    st.write(f"Arquivo anexado: {arquivo_usuario.name}")
+# if arquivo_usuario is not None:    
+#     st.write(f"Arquivo anexado: {arquivo_usuario.name}")
     
-    radio_rodar_arquivo = st.radio(
-    "Escolha os dados que deseja exibir:",
-    ["Exibir dados originais (2015 a 2025)", 
-    "Exibir dados do usuário"]
-    )    
-    st.session_state.dados_exibir = radio_rodar_arquivo
-    botao_filtrar_dados = st.button("Aplicar alterações na tela")
-    st.write("Os dados escolhidos serão exibidos nas tabelas acima.")
+#     radio_rodar_arquivo = st.radio(
+#     "Escolha os dados que deseja exibir:",
+#     ["Exibir dados originais (2015 a 2025)", 
+#     "Exibir dados do usuário"]
+#     )    
+#     st.session_state.dados_exibir = radio_rodar_arquivo
+#     botao_filtrar_dados = st.button("Aplicar alterações na tela")
+#     st.write("Os dados escolhidos serão exibidos nas tabelas acima.")
     
-    if botao_filtrar_dados:
-        st.write("Alterações aplicadas")
-        time.sleep(1.5)        
-        if st.session_state.dados_exibir == "Exibir dados do usuário":
+#     if botao_filtrar_dados:
+#         st.write("Alterações aplicadas")
+#         time.sleep(1.5)        
+#         if st.session_state.dados_exibir == "Exibir dados do usuário":
             
-            dados_usuario = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)            
-            df_bairros_todos_1, df_bairros_hosp_1, df_bairro_ano_1 = agregacao_bairros(dados_usuario)                       
-            df_analise_1 = criar_analise(df_bairro_ano_1, df_populacao)           
+#             dados_usuario = carregar_dados_fonte(st.session_state.arquivo_usuario, json=False)            
+#             df_bairros_todos_1, df_bairros_hosp_1, df_bairro_ano_1 = agregacao_bairros(dados_usuario)                       
+#             df_analise_1 = criar_analise(df_bairro_ano_1, df_populacao)           
             
-            # Para trocar os dados exibidos
-            st.session_state.df_bairros_hosp = df_bairros_hosp_1
-            st.session_state.df_bairros_todos = df_bairros_todos_1              
-            st.session_state.df_analise = df_analise_1
-            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife - fornecido pelo usuário'''        
-            st.rerun()
+#             # Para trocar os dados exibidos
+#             st.session_state.df_bairros_hosp = df_bairros_hosp_1
+#             st.session_state.df_bairros_todos = df_bairros_todos_1              
+#             st.session_state.df_analise = df_analise_1
+#             st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife - fornecido pelo usuário'''        
+#             st.rerun()
             
-        elif st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
-            st.session_state.df_bairros_hosp = df_bairros_hosp
-            st.session_state.df_bairros_todos = df_bairros_todos
-            st.session_state.df_analise = df_analise
-            st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''
-            st.rerun()
+#         elif st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
+#             st.session_state.df_bairros_hosp = df_bairros_hosp
+#             st.session_state.df_bairros_todos = df_bairros_todos
+#             st.session_state.df_analise = df_analise
+#             st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''
+#             st.rerun()
     
-if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (2015 a 2025)":
-    st.rerun()
+# if arquivo_usuario is None and st.session_state.dados_exibir != "Exibir dados originais (2015 a 2025)":
+#     st.rerun()
+
+st.markdown("""
+### 🦟 Conheça o painel
+Explore dados obtidos pela API da Prefeitura do Recife para identificar
+os bairros com maior gravidade dos casos de chikungunya,
+considerando hospitalizações e óbitos entre os casos confirmados.
+
+### 🔎 Entenda os dados
+Na página **Dados**, conheça a base utilizada, explore os registros com filtros
+e entenda os conceitos e critérios de tratamento que orientam as análises.
+
+### 💬 Pergunte aos dados
+Faça perguntas em linguagem natural sobre bairros e anos:
+uma inteligência artificial responde com base nos dados disponíveis,
+e você pode conferir os resultados nas tabelas.
+
+### 📰 Acompanhe as notícias
+Na página **Notícias**, encontre conteúdos relevantes para o tema coletados no site da Fiocruz.
+""")

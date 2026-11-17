@@ -3,6 +3,8 @@ from src.carga_preparacao import carregar_noticias
 from src.news_utils import contar_palavras_news
 import matplotlib.pyplot as plt
 
+st.set_page_config(layout="wide")
+
 palavras_chave = [
     "arbovirose",
     "dengue",

@@ -1,10 +1,8 @@
 import streamlit as st
-#from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, tratamento_dados, mostrar_preenchimento, preparar_metricas_pag_dados, preparar_metricas_graficos_dados
-from comum import excluir_varios_valores, anos_exclusao
-from src.carga_preparacao import tratamento_dados, mostrar_preenchimento,preparar_metricas_graficos_dados, excluir_por_valor
+from comum import anos_exclusao
+from src.carga_preparacao import tratamento_dados, mostrar_preenchimento,preparar_metricas_graficos_dados, excluir_por_valor, excluir_varios_valores
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
 
 total_registros, registros_sem_linha_vazia, df_sem_linhas_vazias = tratamento_dados(st.session_state.dados_api)
 
@@ -24,7 +22,7 @@ st.set_page_config(layout="wide")
 #'''### Dados populacionais, utilizados na agregação:'''
 #st.write(st.session_state.dados_populacao)
 
-st.header("Dados da API da Prefeitura da Cidade do Recife 🦁🇨🇭")
+st.header("Dados da API da Prefeitura da Cidade do Recife ⭐🦁")
 st.subheader(''' Explore os dados originais e entenda as colunas''')
 # ----------------------------------------------------------------------------- Sobre os dados
 
@@ -140,7 +138,8 @@ if not filtrado.empty and st.session_state.bairros_selecao != []:
     # ----------------------------------------------------------------------------- Exibição do dataframe de dados originais após aplicação do filtro pelo usuário (ou completo na primeria exibição)
     
     
-    st.dataframe(filtrado)    
+    st.dataframe(filtrado)
+        
     # for bairro in st.session_state.bairros_selecao:
     #     st.write(f"Registros para o bairro {bairro}: {len(filtrado[filtrado['NM_BAIRRO'] == bairro])}")
     
@@ -198,19 +197,10 @@ else:
 
 # ---------------------------------------------------------------------------------- coluna NU_ANO 
 
-df_limpo_anos, valores = excluir_varios_valores(st.session_state.dados_api, "NU_ANO", anos_exclusao)
-dados_exclusao_anos = {ano : valor for ano, valor in zip(anos_exclusao, valores)}
-
-# ---------------------------------------------------------------------------------- coluna CLASSI_FIN (ficam apenas os casos confirmados, os demais são notificações)
-
-opcoes_classificacao = [1, 2, 5, 8, 10, 11, 12]
-df_limpo_classi, n_linhas_excluidas_classi, n_vazias_excluidas_classi = excluir_por_valor(
-            df_limpo_anos, 
-            'CLASSI_FIN', 
-            opcoes_classificacao, 
-            excluir_vazios=True)
-
-st.session_state.dados_tratados = df_limpo_classi
+df_limpo_classi = st.session_state.dados_tratados
+dados_exclusao_anos = st.session_state.dados_exclusao_anos
+n_linhas_excluidas_classi = st.session_state.n_linhas_excluidas_classi
+n_vazias_excluidas_classi = st.session_state.n_vazias_excluidas_classi
 
 # ------------------------  Fim Tratamento dos dados     ------------------------------------------
 
@@ -263,8 +253,8 @@ Queremos manter apenas os casos confirmados de chikungunya. Podemos considerar o
 
 ##### Total de registros nos dados originais: {total_registros}  
 ##### Quantidade de registros excluídos: 
-ano de 2015: 1377  
-ano de 2016: 11533  
+ano de 2015: {dados_exclusao_anos.get(2015, 0)}  
+ano de 2016: {dados_exclusao_anos.get(2016, 0)}  
 casos sem confirmação da doença: {n_linhas_excluidas_classi + n_vazias_excluidas_classi}  
 ##### Total de registros após tratamento dos dados: **{len(df_limpo_classi)}**  
 Uma perda significativa, porém necessária para a consistência da análise.'''
@@ -285,3 +275,4 @@ df_limpo_classi
 numeros_preenchimento = mostrar_preenchimento(df_limpo_classi, colunas_analise)   
 preparar_metricas_graficos_dados(numeros_preenchimento, colunas_analise)
 
+st.write('''_O leão 🦁 e a estrela ⭐🦁 são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')

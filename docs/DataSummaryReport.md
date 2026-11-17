@@ -1,87 +1,71 @@
-# Data Summary Report
+﻿# Data Summary Report
 
 ## Fontes
 
-* ~~A fonte de dados serão os arquivos dispoíveis em https:\//dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya, que compreendem o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025. Neste momento, a aplicação carrega por padrão os dados de 2025, salvos em csv.~~ 
+* Os registros de chikungunya de 2015 a 2025 são coletados pela API de dados abertos da Prefeitura do Recife, a partir de https://dados.recife.pe.gov.br/api/action/. A coleta seleciona os recursos referentes a chikungunya e salva os dados em `data/processed/data_series.json`, utilizado no carregamento da aplicação.
 
-* Os dados estão sendo carregaos via API, a partir do endpoint https://dados.recife.pe.gov.br/api/action/, compreendendo o registro de casos confirmados de chikungunya no período compreendido entre 2015 e 2025.
+* A população por bairro é obtida pela API geográfica da Prefeitura do Recife, com dados do **Censo 2022**: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer.
 
-* O usuário pode anexar um arquivo referente a algum ano da série histórica para realizar uma análise exclusiva a partir do conteúdo ali contido. (Sugestão é trazer dados de outras localidades, desque que no formato indicado)
-
-* API geográfica da Prefeitura do Recife, em: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer, com dados de população colhidos no censo de 2002, já agregados por bairro.
-
-* ~~Página da EBC para scraping, https:\//busca.ebc.com.br/?site_id=agenciabrasil&q=dengue%20chikungunya, pesquisa de notícias provenientes de diferentes agências, resultado da consulta pelos termos 'dengue chikunghunya'. O robots.txt em https:\//busca.ebc.com.br não permite a coleta.~~ Página da [EBC](https://agenciabrasil.ebc.com.br/) para scraping, notícias coletadas das seções de assuntos.
+* As notícias são coletadas no site da **Fiocruz**, pela busca dos termos **dengue** e **chikungunya**. Elas complementam a apresentação do tema e não entram no cálculo dos indicadores epidemiológicos.
 
 ## Características dos dados
 
-~~Os dados estão na forma de arquivos csv~~ Os dados extraídos da API são estrutudados.  
-Com a coleta via API, diferentemente da carga por _csv_, apenas as colunas de interesse são extraídas:
+Os dados de casos são estruturados. Na coleta pela API, são selecionadas as colunas de interesse:
 
-* ~~NU_NOTIFIC (Numérica, inteira, identifica o número do reporte) ?????~~
-* NU_ANO (Númerica, 4 dígitos, identifica o ano do reporte)
-* DT_NASC (DD/MM/AAAA - data de nascimento do paciente)
-* CS_SEXO (categórica - M, F - sexo do paciente)
-* CS_ESCOL_N (numérica, inteiro, representa o grau de escolaridade do paciente)
-* NM_BAIRRO (textual, nome do bairro de residência do paciente)
-* ~~DT_OBITO (data de óbito do paciente, 5 dígitos, formato excel númerico - inteiro - para datas)~~ coluna é substituída pela coluna 'EVOLUCAO'
-* CLASSI_FIN, (numérica, inteiro, representa a classificação final em relação à doença)
+* `NU_NOTIFIC`: número da notificação.
+* `NU_ANO`: ano da notificação.
+* `DT_NASC`: data de nascimento do paciente.
+* `CS_SEXO`: código do sexo do paciente.
+* `NM_BAIRRO`: bairro de residência do paciente.
+* `HOSPITALIZ`: informação sobre hospitalização.
+* `EVOLUCAO`: evolução do caso, utilizada para identificar óbitos pelo agravo.
+* `CLASSI_FIN`: classificação final em relação à doença.
 
-Sendo necessário incluir mais colunas na análise, basta acrescentá-las na lista da função que consulta a API.Para o escopo da análise são imprescindíveis as colunas NU_ANO e NM_BAIRRO. ~~e DT_OBITO. A coluna NU_NOTIFIC é mantida para identificar cada registro.~~ A coluna **CLASSI_FIN** é estritamente necessária, pois confirma se a causa do estado do paciente realmente foi a doença: (5-Descartado
-10-Dengue
-11-Dengue com
-sinais de alarme
-12-Dengue grave
-13-Chikungunya
-). Para efeitos de consistência, os registros com `CLASSI_FIN = 5` são excluídos da análise, garantindo que apenas casos confirmados da doença são considerados.  
-~~Avaliar ao final se vamos incluir apenas 13 ou alargar a análise incluindo comparações com resultados positivos para dengue.~~
-~~As referências às demais colunas (tachadas), neste momento, são mantidas na documentação com a intenção de trazer indicadores sócio-demográficos mínimos dos pacientes em iterações futuras do projeto.~~
+As diferenças nos nomes das colunas dos arquivos mais antigos são padronizadas na coleta.
 
-Agora csv é apenas o fornecido pelo usuário.
+Para a análise por localidade, são necessários o ano e o bairro. A classificação final define o recorte de chikungunya, correspondente ao código `13`; excluir apenas o código `5` não seria suficiente para separar essa doença das demais classificações.
 
 ## Transformações
 
-~~A coluna DT_OBITO é convertida de int para data na coluna (DT_OBITO_FORM).~~
-<br>Agregação com pandas gerando as seguintes colunas para análise:
+* Exclusão dos anos de **2015 e 2016**, devido à quantidade de registros sem identificação do bairro.
+* Exclusão de classificações vazias e dos códigos `1`, `2`, `5`, `8`, `10`, `11` e `12`, conforme o tratamento implementado para manter o recorte de chikungunya.
+* Exclusão dos registros sem bairro antes das agregações por localidade.
+* Contagem de hospitalizações pelo código `HOSPITALIZ == 1` e de óbitos pelo agravo pelo código `EVOLUCAO == 2`.
 
-* TOTAL_CASOS (Numérica, inteiro, quantidade total de casos reportados e confirmados)
-* TOTAL_HOSPITALIZACOES (Numérica, inteiro, total de hospitalizações entre os casos confirmados)
-* TOTAL_OBITOS (Numérica, inteiro, total de óbitos entre os casos confirmados)
+O período utilizado nas análises é de **2017 a 2025** - nos anos de 2015 e 2016 há muitos registros sem o bairro preenchido, o que comprometeria a consistência da análise. Os campos ignorados ou sem informação não são contabilizados como hospitalizações ou óbitos confirmados, mas também não comprovam a ausência desses eventos.
 
 ## Agregações
 
-#### ANÁLISE + POPULAÇÂO (COLETADO)
+Os registros são agregados com pandas por bairro e ano, gerando:
 
-A contagem do total de casos por bairro é calculada e registrada na coluna 'TOTAL_CASOS_BAIRRO'<br>
-Uma tabela derivada é criada a partir da filtragem dos dados iniciais, contendo apenas as instâncias que apresentam óbito do paciente (representada pela presença de valor em DT_OBITO_FORM).<br>
-A relaçaõ entre o número total de casos e o números de óbitos é calculada e registrada na coluna OBT_POR_CASOS.
+* `TOTAL_CASOS`: quantidade de casos no recorte tratado.
+* `TOTAL_HOSPITALIZACOES`: total de hospitalizações entre esses casos.
+* `TOTAL_OBITOS`: total de óbitos pelo agravo entre esses casos.
 
+### Análise com dados de população
 
-Nos dados da prefeitura (chikungunya):
+Os dados agregados são associados à população pelo nome do bairro, com padronização de letras maiúsculas e remoção de acentos para a junção. São calculadas as colunas:
 
+* `POPULACAO`: população do bairro no Censo 2022.
+* `INCIDENCIA_100K`: `TOTAL_CASOS / POPULACAO * 100.000`.
+* `PERC_CASOS_HOSP`: `TOTAL_HOSPITALIZACOES / TOTAL_CASOS * 100`.
 
-[Dicionário de dados:](https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf)
-https\://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf
+A população de 2022 é utilizada como referência para todos os anos, o que limita a comparação da incidência ao longo do tempo. Bairros sem correspondência na base populacional ficam sem população e incidência calculadas. Populações repetidas entre anos não devem ser somadas.
 
-<!-- Link quebrado para exibição correta no VSCode -->
+## Coleta de notícias
 
-* HOSPITALIZ (Numérica, inteira, identifica se houve hospitalização / 1-Sim 2-Não 9-Ignorado)
-* CLASSI_FIN (5-Descartado,
-10-Dengue,
-11-Dengue com sinais de alarme,
-12-Dengue grave,
-13-Chikungunya)
+A coleta é executada separadamente da interface, pelo script `src/news_orchestration.py`, com funções de `src/news_get.py`.
 
-[Outro doc - SINAN ?](https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SINAN/Dengue/dic_dados_dengue.pdf)  
-Classificação final
-‘ ‘, 0 , 9 Ignorado
-1 Confirmado
-2 Descartado
-8 Inconclusivo
+O processo consulta o `robots.txt`, verifica as permissões de acesso e considera o intervalo de espera informado pelo site. Requests obtém o HTML, e BeautifulSoup extrai títulos, links e textos de até **15 notícias da página de resultados consultada**, sem percorrer todas as páginas da busca.
 
+O HTML da busca é salvo em `data/raw`. Os resultados são gravados em `data/processed/news.csv` e `data/processed/news_texto.txt`, preservando a versão anterior com o sufixo `_old`.
 
-<!-- dá pra escrever comentários no markdown, se a gente quiser
-```python
-def funcao_python():
-    return 2 + 2
-```
--->
+A página **Notícias** lê esses arquivos para apresentar matérias, links, trechos e frequência de palavras. Abrir a página não inicia uma nova coleta. Mudanças na estrutura do site podem exigir ajustes nos seletores de extração.
+
+## Referência dos códigos
+
+* `HOSPITALIZ`: `1` — Sim; `2` — Não; `9` — Ignorado.
+* `EVOLUCAO`: `2` — Óbito pelo agravo.
+* `CLASSI_FIN`: `5` — Descartado; `10` — Dengue; `11` — Dengue com sinais de alarme; `12` — Dengue grave; `13` — Chikungunya.
+
+[Dicionário de dados do SINAN](https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf).
