@@ -1,0 +1,68 @@
+﻿modelo,arquitetura,tipo,prompt,pergunta_n,pergunta,resposta,status,sem_resposta,tempo_s,carga_s,pesos_mib,tokens_entrada,tokens_saida
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,1,Quantos casos foram registrados nos Aflitos em 2017?,Os casos registrados nos Aflitos em 2017 foram 1.,OK,0,4.59,7.02,3875.27,147,19
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,2,Quantas hospitalizações foram registradas na Tamarineira em em 2021?,"Em 2021, foram registradas 5 hospitalizações na Tamarineira.",OK,0,4.97,7.02,3875.27,156,22
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,3,Quantos óbitos foram registrados em Areias em 2019?,"Em 2019, foram registrados 1 óbito em Areias.",OK,0,5.76,7.02,3875.27,150,20
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,4,Como evoluiu a quantidade de casos na Imbiribeira ao longo dos anos disponíveis?,"A quantidade de casos na Imbiribeira evoluiu de forma variável ao longo dos anos. Em 2017, houve 19 casos, enquanto em 2018, o número caiu para 15. Em 2019, aumentou para 20, em 2020 para 57, em 2021 para 507, em 2022 para 131, em 2023 para 48, em 2024 para 21 e em 2025 para 21. Portanto, houve períodos de aumento e diminuição nos casos.",OK,0,37.73,7.02,3875.27,455,153
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,5,Qual bairro registrou a maior quantidade de casos em 2020? Informe o bairro e a quantidade.,"O bairro que registrou a maior quantidade de casos em 2020 foi **MUSTARDINHA**, com 4 casos.",OK,0,45.33,7.02,3875.27,2793,31
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,6,Qual bairro registrou a maior quantidade de hospitalizações em 2018? Informe o bairro e a quantidade.,"O bairro que registrou a maior quantidade de hospitalizações em 2018 foi **BOMBA DO HEMETERIO**, com 14 hospitalizações.",OK,0,71.49,7.02,3875.27,1778,39
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,7,Qual bairro apresentou a maior incidência de casos por 100 mil habitantes em 2017? Informe o bairro e a incidência.,"O bairro com a maior incidência de casos por 100 mil habitantes em 2017 foi **SANTO AMARO**, com uma incidência de **44.28**.",OK,0,82.3,7.02,3875.27,2407,47
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,8,Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?,"O percentual de casos hospitalizados em Jardim São Paulo em 2021 foi de 2,5%.",OK,0,6.13,7.02,3875.27,159,27
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,9,"Em Dois Unidos, qual ano apresentou a maior quantidade de casos? Informe o ano e a quantidade.","O ano que apresentou a maior quantidade de casos em Dois Unidos foi 2021, com 740 casos.",OK,0,21.61,7.02,3875.27,450,29
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,10,Quais foram os três bairros com maior quantidade de óbitos em 2019? Informe os bairros e suas respectivas quantidades.,"Os três bairros com maior quantidade de óbitos em 2019 são:
+
+1. **FUNDAO** - 1 óbito  
+2. **GRACAS** - 4 óbitos  
+3. **VARZEA** - 13 óbitos",OK,0,56.91,7.02,3875.27,2921,62
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,1,Quantos casos foram registrados nos Aflitos em 2017?,"No Aflitos, em 2017, foram registrados 1 caso.",OK,0,2.87,2.32,1433.66,147,20
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,2,Quantas hospitalizações foram registradas na Tamarineira em em 2021?,"Na Tamarineira em 2021, foram registradas **5 hospitalizações**.",OK,0,2.77,2.32,1433.66,156,23
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,3,Quantos óbitos foram registrados em Areias em 2019?,"Em 2019, foram registrados 1 óbitos em Areias.",OK,0,2.3,2.32,1433.66,150,20
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,4,Como evoluiu a quantidade de casos na Imbiribeira ao longo dos anos disponíveis?,"A quantidade de casos na Imbiribeira evoluiu ao longo dos anos, com valores variando conforme o ano. No ano de 2017, houve 19 casos, no 2018, 15, no 2019, 20, no 2020, 57, no 2021, 507 e no 2022, 131. A evolução dos casos está relacionada ao aumento da incidência e da taxa de casos no ano de 2017.",OK,0,14.5,2.32,1433.66,455,129
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,5,Qual bairro registrou a maior quantidade de casos em 2020? Informe o bairro e a quantidade.,"O bairro que registrou a maior quantidade de casos em 2020 é **ALTO JOSE BONIFACIO**, com **19 casos**.",OK,0,23.06,2.32,1433.66,2793,37
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,6,Qual bairro registrou a maior quantidade de hospitalizações em 2018? Informe o bairro e a quantidade.,O bairro que registrou a maior quantidade de hospitalizações em 2018 é **ALTO DO MANDU** com **1 hospitalização**.,OK,0,14.91,2.32,1433.66,1778,36
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,7,Qual bairro apresentou a maior incidência de casos por 100 mil habitantes em 2017? Informe o bairro e a incidência.,"O bairro que apresentou a maior incidência de casos por 100 mil habitantes em 2017 é **ALTO JOSE BONIFACIO** com uma incidência de **629,66**.",OK,0,25.73,2.32,1433.66,2407,53
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,8,Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?,"O percentual de casos hospitalizados em Jardim São Paulo em 2021 foi de 2,5%.",OK,0,3.39,2.32,1433.66,159,27
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,9,"Em Dois Unidos, qual ano apresentou a maior quantidade de casos? Informe o ano e a quantidade.","Em Dois Unidos, o ano que apresentou a maior quantidade de casos foi 2021, com 740 casos.",OK,0,5.46,2.32,1433.66,450,30
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,10,Quais foram os três bairros com maior quantidade de óbitos em 2019? Informe os bairros e suas respectivas quantidades.,"Os três bairros com maior quantidade de óbitos em 2019 são:
+
+1. **ALTO JOSE BONIFACIO** - 10323.0  
+2. **ALTO JOSE DO PINHO** - 11892.0  
+3. **ALTO SANTA ISABEL** - 0.0",OK,0,50.13,2.32,1433.66,2921,80
+smollm2,llama,torch.float32,definicoes_agregacoes,1,Quantos casos foram registrados nos Aflitos em 2017?,Não há dados disponíveis para responder a essa pergunta.,OK,0,7.47,7.52,3264.22,177,22
+smollm2,llama,torch.float32,definicoes_agregacoes,2,Quantas hospitalizações foram registradas na Tamarineira em em 2021?,Não há informações sobre a quantidade de hospitalizações registradas na Tamarineira em 2021.,OK,0,9.45,7.52,3264.22,187,35
+smollm2,llama,torch.float32,definicoes_agregacoes,3,Quantos óbitos foram registrados em Areias em 2019?,Não há informações sobre o número de óbitos registrados em Areias em 2019.,OK,0,9.3,7.52,3264.22,181,35
+smollm2,llama,torch.float32,definicoes_agregacoes,4,Como evoluiu a quantidade de casos na Imbiribeira ao longo dos anos disponíveis?,"A quantidade de casos na Imbiribeira ao longo dos anos disponíveis aumentou de 19 a 131, de 52158.0 a 52158.0, de 0 a 251.16, de 0 a 92.03 e de 0 a 40.26.",OK,0,26.03,7.52,3264.22,508,91
+smollm2,llama,torch.float32,definicoes_agregacoes,5,Qual bairro registrou a maior quantidade de casos em 2020? Informe o bairro e a quantidade.,"The bairro that registered the highest number of cases in 2020 is **BREJO DE BEBERIBE**, with 7679 cases.",OK,0,50.52,7.52,3264.22,2946,37
+smollm2,llama,torch.float32,definicoes_agregacoes,6,Qual bairro registrou a maior quantidade de hospitalizações em 2018? Informe o bairro e a quantidade.,"The bairro registrou a maior quantidade de hospitalizações em 2018, com 7089 hospitalizações.",OK,0,37.25,7.52,3264.22,1889,37
+smollm2,llama,torch.float32,definicoes_agregacoes,7,Qual bairro apresentou a maior incidência de casos por 100 mil habitantes em 2017? Informe o bairro e a incidência.,"The bairro with the highest incidence of cases per 100,000 inhabitants in 2017 is Zumbi, with an incidence of 21.0 cases per 100,000 inhabitants.",OK,0,47.76,7.52,3264.22,2550,53
+smollm2,llama,torch.float32,definicoes_agregacoes,8,Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?,O percentual de casos hospitalizados em Jardim Sao Paulo em 2021 foi 666.76.,OK,0,9.08,7.52,3264.22,191,33
+smollm2,llama,torch.float32,definicoes_agregacoes,9,"Em Dois Unidos, qual ano apresentou a maior quantidade de casos? Informe o ano e a quantidade.","Em Dois Unidos, o ano apresentou a maior quantidade de casos em 2022, com 134.6 casos.",OK,0,15.47,7.52,3264.22,494,39
+smollm2,llama,torch.float32,definicoes_agregacoes,10,Quais foram os três bairros com maior quantidade de óbitos em 2019? Informe os bairros e suas respectivas quantidades.,"Os três bairros com maior quantidade de óbitos em 2019 foram:
+
+1. ZUMBI, com 4763 óbitos.
+2. VASCO DA GAMA, com 26645 óbitos.
+3. TORROES, com 31130 óbitos.",OK,0,72.57,7.52,3264.22,3093,87
+tinyllama,llama,torch.float32,definicoes_agregacoes,1,Quantos casos foram registrados nos Aflitos em 2017?,Resposta: 1,OK,0,2.78,4.71,2098.2,183,6
+tinyllama,llama,torch.float32,definicoes_agregacoes,2,Quantas hospitalizações foram registradas na Tamarineira em em 2021?,"Resposta: A pergunta ""Quantas hospitalizações foram registradas na Tamarineira em em 2021?"" não conta com os dados fornecidos. Não invente informações. Seja objetivo.",OK,0,8.13,4.71,2098.2,193,54
+tinyllama,llama,torch.float32,definicoes_agregacoes,3,Quantos óbitos foram registrados em Areias em 2019?,"Resposta: 1
+
+Resposta: Não invente informações. Seja objetivo.",OK,0,4.52,4.71,2098.2,188,23
+tinyllama,llama,torch.float32,definicoes_agregacoes,4,Como evoluiu a quantidade de casos na Imbiribeira ao longo dos anos disponíveis?,"Resposta:
+
+Não invente informações. Seja objetivo.
+
+Responda em português usando apenas os dados fornecidos. Não invente informações. Seja objetivo.
+
+NM_BAIRRO,NU_ANO,TOTAL_CASOS,TOTAL_HOSPITALIZACOES,TOTAL_OBITOS,POPULACAO,INCIDENCIA_100K,PERC_CASOS_HOSP
+IMBIRIBEIRA,2017,19,0,0,52158.0,36.43,0.0
+IMBIRIBEIRA,2018,15,0,0,52158.0,28.76,0.0
+IMBIRIBEIRA,2019,20,1,0,52158.0,38.35,5.0
+IMBIRIBEIRA,2020,57,4,0,521",OK,0,34.6,4.71,2098.2,511,256
+tinyllama,llama,torch.float32,definicoes_agregacoes,5,Qual bairro registrou a maior quantidade de casos em 2020? Informe o bairro e a quantidade.,"NNNNNNNE PBNNNNNNNNB41111111111BSE11NN111111NSENNNNENESESESNENNENESBNNNNNNNNBNNB111BMENNB11111BNENENNENEBBBNEBB1111BBB11BANNss<ssss<s<sss<s<s<s<<<<B<Ns<Bsss<s<s<N11BBNB<BS11111BBBC<BSBSBBS<BS<NS<BS<BS<NB<B11SSBSDESDESDES11DESDESDESDESFDEDEDESDESDESDESDES1111111A1NA",OK,0,63.7,4.71,2098.2,2984,256
+tinyllama,llama,torch.float32,definicoes_agregacoes,6,Qual bairro registrou a maior quantidade de hospitalizações em 2018? Informe o bairro e a quantidade.,"Resposta: A resposta correta para a pergunta ""Qual bairro registrou a maior quantidade de hospitalizações em 2018?"" é:
+
+Bairro: AREIAS
+Quantidade: 6620",OK,0,23.7,4.71,2098.2,1916,57
+tinyllama,llama,torch.float32,definicoes_agregacoes,7,Qual bairro apresentou a maior incidência de casos por 100 mil habitantes em 2017? Informe o bairro e a incidência.,"DESDESDESSESSESSESSESSESNSssSSSs essssSSSSSSDESDESSESSNSDESDESMESSESSESSOSSESSESSESSESNSNSESssnasnasnasNsNESESSES NSSESNSNSNNNSSSSSESSESNS NSSESNNNSSESSSESSESSO e<CSSESSSSESSESSESSESSSESESESESSESSSSSESSESSSSSSESPS_SSSES_NOSSSSSS_SSESSESSESSESSESSESSESSES_NSESSESNOSSESSESSSSSSS_NOSSES114_SSES_S_SESSES_SE_SESE_SESSESESESESSE",OK,0,56.31,4.71,2098.2,2581,256
+tinyllama,llama,torch.float32,definicoes_agregacoes,8,Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?,"Resposta: Não existe dados para a pergunta ""Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?""",OK,0,6.36,4.71,2098.2,199,39
+tinyllama,llama,torch.float32,definicoes_agregacoes,9,"Em Dois Unidos, qual ano apresentou a maior quantidade de casos? Informe o ano e a quantidade.","Resposta: 2022, com 12 casos.",OK,0,6.94,4.71,2098.2,496,16
+tinyllama,llama,torch.float32,definicoes_agregacoes,10,Quais foram os três bairros com maior quantidade de óbitos em 2019? Informe os bairros e suas respectivas quantidades.,"s<<<s<Bs<Nss<Bs<s<s<N1NBNB11111111BBBCSBSSBSBS<BS<NS<<BS<B<N<NS<SSDESDESDESDESSS1SDESDESDESFNFDESDESDESDESDESDES11111SA11NN1FS11111DE1DES1111AN1111111111111111111111OPOP<FF1S1SS11NNSDESDE11111DE11111111S1S111111OP_F1111OPS1111AU_DE111111111111111111111111111111111F11111111",OK,0,62.49,4.71,2098.2,3125,256

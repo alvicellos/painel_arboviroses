@@ -1,0 +1,5 @@
+﻿modelo,arquitetura,tipo,prompt,perguntas,sem_resposta,tempo_medio_s,carga_s,pesos_mib,tokens_entrada,tokens_saida
+qwen3_0_6b,qwen3,torch.float32,definicoes_agregacoes,10,0,14.51,2.32,1433.66,1141.6,45.5
+qwen3_1_7b,qwen3,torch.float32,definicoes_agregacoes,10,0,33.68,7.02,3875.27,1141.6,44.9
+smollm2,llama,torch.float32,definicoes_agregacoes,10,0,28.49,7.52,3264.22,1221.6,46.9
+tinyllama,llama,torch.float32,definicoes_agregacoes,10,0,26.95,4.71,2098.2,1237.6,121.9

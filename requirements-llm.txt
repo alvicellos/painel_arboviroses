@@ -1,0 +1,4 @@
+﻿# Dependencias opcionais da bancada; nao precisam entrar no deploy Streamlit.
+-r requirements.txt
+transformers>=5.0,<6
+torch>=2.6
