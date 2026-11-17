@@ -1,8 +1,20 @@
 .venv
+.env
+env/
 data/raw/*.html
 data/sandbox
 misc/
 src/__pycache__
 src/old/
 *.pyc
+__pycache__/
+*/__pycache__/*
 
+# --- Temporários de sistema e de editor ---
+*.tmp
+*.log
+~$*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

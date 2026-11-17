@@ -8,7 +8,6 @@ from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao,
 
 # --------------------------------------------------------------------------------------------------------------------- Configuração da página
 st.set_page_config(layout="wide")
-
 # --------------------------------------------------------------------------------------------------------------------- DEFINIÇÃO DE VARIÁVEIS; CONTROLE DE FLUXO
 if "dados_exibir" not in st.session_state:    
     st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"
@@ -21,7 +20,7 @@ if st.session_state.arquivo_usuario == None:
     st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"   
 
 # --------------------------------------------------------------------------------------------------------------------- CARGA DADOS POPULAÇÃO
-df_populacao = carregar_dados_populacao()
+df_populacao, fonte_populacao = carregar_dados_populacao()
 
 # REORDENAR O DF_ANÁLSE COM AS COLUNAS DE MAIOR INTERESSE PRIMEIRO
 # --------------------------------------------------------------------------------------------------------------------- CARGA DADOS DOENÇA
@@ -54,6 +53,8 @@ if st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
 st.divider()
 st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife:')
 st.divider()
+
+st.title('Vai mudar para: o que temos aqui ? 🦟🌡️🩺💊🩸🏥🩹🤕')
 
 #st.subheader("Problema de negócio e objetivos:")
 #st.write("Verificar os três bairros do município do Recife com maior proporção de mortes por casos confirmados de chikungunya")

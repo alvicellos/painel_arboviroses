@@ -7,23 +7,33 @@ import re
 import time
 import os
 
-def check_robots(site, agente, terminacoes: list) -> tuple[dict, int]:
+def check_robots(site, agente, terminacoes: list, checar_somente_base=False) -> tuple[dict, int]:
     # 1. Definir o site e um User-Agent transparente com identificação e contato
     SITE = site
     AGENTE = agente
 
     # 2. Obter o robots.txt do site
     url_robots = f"{SITE}/robots.txt"
+    print("URL ROBOTS")
+    print(url_robots)
     resposta = requests.get(url_robots, headers={"User-Agent": AGENTE})
 
     # 3. Instanciar o RobotFileParser e carregar as regras
     regras = RobotFileParser()
     regras.parse(resposta.text.splitlines())
-
-    # 4. Checar permissão para rotas específicas    
-    urls_permissoes = {}
     
-    # Não precisa do loop, estamos fazendo na orquestração
+    # 4. Checar permissão para rotas específicas    
+    urls_permissoes = {}    
+    
+    # if checar_somente_base:    
+    #     print(site, regras.can_fetch(AGENTE, site))
+    #     #"https://fiocruz.br"
+    #     urls_permissoes[site] = regras.can_fetch(AGENTE, site)
+    #     delay = regras.crawl_delay(AGENTE) or 0
+    #     print(f"O tempo de espera 'crawl_delay' deve ser de {delay} segundos.")
+    
+    # else:
+        # Não precisa do loop, estamos fazendo na orquestração  
     for terminacao in terminacoes:
         url_checar = f"{SITE}/{terminacao}"
         print(url_checar, regras.can_fetch(AGENTE, url_checar))
@@ -31,12 +41,10 @@ def check_robots(site, agente, terminacoes: list) -> tuple[dict, int]:
     
     # url_checar = f"{SITE}/{terminacao}"
     # print(url_checar, regras.can_fetch(AGENTE, url_checar))
-    # urls_permissoes[url_checar] = regras.can_fetch(AGENTE, url_checar)
-        
-    delay = regras.crawl_delay(AGENTE)    
-    print(f"O tempo de espera 'crawl_delay' deve ser de {delay} segundos.")
-    
-    time.sleep(delay)
+    # urls_permissoes[url_checar] = regras.can_fetch(AGENTE, url_checar)   
+        delay = regras.crawl_delay(AGENTE) or 0  
+        print(f"O tempo de espera 'crawl_delay' deve ser de {delay} segundos.")
+        time.sleep(delay)
                 
     return urls_permissoes, delay
 
@@ -49,7 +57,6 @@ def get_snapshot_html(sites_permissoes: list, agente: str, espera: int) -> dict:
     
     for site in sites_permissoes:
         if sites_permissoes[site] == True:
-            print(site)
             resposta = requests.get(site, headers={"User-Agent": agente}, timeout=30)               
             
             # 3. OBRIGATÓRIO: Verificar se a página respondeu com sucesso (200 OK)
@@ -59,13 +66,18 @@ def get_snapshot_html(sites_permissoes: list, agente: str, espera: int) -> dict:
             # 4. Ajustar a codificação de caracteres
             resposta.encoding = resposta.apparent_encoding or "utf-8"
 
-            # 5. Criar o caminho do arquivo em data/raw/ e gravar o texto do HTML            
+            # 5. Criar o caminho do arquivo em data/raw/ e gravar o texto do HTML
             destino = Path(f"data/raw/{site.split('/')[-1]}.html")                      
             destino.parent.mkdir(parents=True, exist_ok=True)
             
             if resposta.text != "":
-                destino.write_text(resposta.text, encoding="utf-8")                                 
-                print(f"Snapshot salvo com sucesso em: {destino}")
+                try:
+                    destino.write_text(resposta.text, encoding="utf-8")                                 
+                    print(f"Snapshot salvo com sucesso em: {destino}")
+                except:
+                    destino = Path(f"data/raw/noticias.html")
+                    destino.write_text(resposta.text, encoding="utf-8")                                 
+                    print(f"Snapshot salvo com sucesso em: {destino}")
             else: 
                 print(f"Site {site} retornou conteúdo html vazio. Verificar coleta.")
         
@@ -89,7 +101,8 @@ def get_corpo_materias(pagina_coletada_html, espera):
     news = []
     #horarios_origem = []
 
-    noticias = sopa.select('a.titulo-noticia')
+    #noticias = sopa.select('a.titulo-noticia')
+    noticias = sopa.select('div.titulo-busca')
     print(f"Total de noticias encontradas: {len(noticias)}")
         
     for i, tag in enumerate(noticias, 1):                                 
@@ -108,6 +121,67 @@ def get_corpo_materias(pagina_coletada_html, espera):
                     titulo = tag.get_text().strip()        
                     
             texto_materia = sopa_news.select("div.conteudo-noticia p")       
+            
+            materia_corrida = []
+            for i, tag in enumerate(texto_materia, 1):                        
+                corpo_bruto = tag.get_text().strip()
+                #corpo_limpo = corpo_bruto.strip().replace('\r', ' ').replace('\n', '')
+                corpo_limpo = re.sub(r"\s+", " ", corpo_bruto.replace("\xa0", " ")).strip()
+                materia_corrida.append(corpo_limpo)
+                
+            texto_materia = " ".join(materia_corrida)
+            dados_news = {'titulo': titulo, 'link': link, 'texto_materia' : texto_materia}
+            news.append(dados_news)            
+            time.sleep(espera)        
+        else:
+            print(f"Status code: {resposta_link.status_code}")
+            if tag != noticias[-1]:
+                print("Seguindo para a matéria seguinte...")
+            # time.sleep(espera)   # Precisa ?
+            continue    
+    
+    return news
+
+def get_corpo_fiocruz(pagina_coletada_html, espera, max=None):
+    # Adicionar WAITs    
+    '''    
+    Lê o html salvo do snapshop e coleta:
+        -os títulos
+        -links e
+        -textos;
+        
+        de cada matéria (entra na página de cada matéria)
+    '''    
+    sopa = bs(pagina_coletada_html, "html.parser")
+    
+    with open(r"E:\IA_Aplicada\Projeto_de_bloco\painel_arboviroses\data\raw\noticias.html", "r", encoding="utf8") as file:
+        html = file.read()
+    sopa = bs(html, "html.parser")
+    news = []    
+    noticias = sopa.select('div.titulo-busca')
+    
+    if not max == None:
+        noticias = noticias[:max]
+    
+    print(f"Total de noticias encontradas: {len(noticias)}")
+        
+    for i, tag in enumerate(noticias, 1):                                 
+        titulo = tag.get_text().strip()        
+        link = r'https://fiocruz.br/' + tag.select('a')[0].get('href')   
+        print(f'{i} - Consultando matéria: "{titulo}"\n  {link}...') 
+        resposta_link = requests.get(link)
+        
+        time.sleep(3)               
+        
+        if 200 <= resposta_link.status_code < 300:            
+            sopa_news = bs(resposta_link.text, "html.parser")                      
+            #titulo_materia = sopa_news.select('h1.titulo-materia')
+            titulo_materia = sopa_news.select('div.order-1 order-lg-2 h1')
+            for i, tag in enumerate(titulo_materia, 1):
+                    titulo = tag.get_text().strip()        
+                    
+            #texto_materia = sopa_news.select("div.conteudo-noticia p") 
+            texto_materia = sopa_news.select("div.clearfix.text-formatted.field.field--name-body.field--type-text-with-summary.field--label-hidden.field__item p")       
             
             materia_corrida = []
             for i, tag in enumerate(texto_materia, 1):                        

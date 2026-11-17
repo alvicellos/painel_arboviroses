@@ -23,15 +23,14 @@ palavras_chave = [
     "muriçoca",
 ]
 
-st.title("Últimas notícias 📰")
-st.divider()       
-
+st.title("Últimas notícias📰")
+st.divider()
 
 # ----------------------------------------------------------------  # Carregamento das notícias
 df_news = carregar_noticias()                    
 
 # ----------------------------------------------------------------  # Exibição da tabela de notícias
-'''### Tabela notícias:'''                                          # Subtítulo
+'''### Notícias em forma de tabela:'''                                          # Subtítulo
 
 st.html("<p>")
 
@@ -39,11 +38,12 @@ st.html("<p>")
 df_news                                          
 
 # ----------------------------------------------------------------  # Observação
-'''**Fazer aqui um botão de download**'''        
+#'''**Fazer aqui um botão de download**'''        
 
 # ----------------------------------------------------------------  # Título Resumo das Notícias
 st.divider()
-'''### Conteúdo das notícias:'''      
+
+'''### 📰 Notícias em forma de texto:'''      
 
 # ----------------------------------------------------------------- # Monta string markdown para exibição das notícias
 mark = ""
@@ -54,44 +54,44 @@ for index, row in df_news.iterrows():
 """
 
 # ----------------------------------------------------------------- # Exibição das notícias
-mark                                 
+with st.expander("Manchetes, trechos e links para acesso ao conteúdo (clique para exibir)"):
+    mark                                 
+
 st.divider()
 
 # ----------------------------------------------------------------- # Subtítulo Ocorrência de palavras nas notícias:
-st.header("Ocorrência de palavras nas notícias:")   
+st.header("Palavras nas notícias:")   
 
 # ----------------------------------------------------------------- # Slider para escolha da quantidade de palavras a exibir
-palavras = st.slider("Selecione a quantas palavras mais presentes nas notícias deseja exibir:", 5, 45)  # 
+palavras = st.slider("Selecione a quantidade de palavras para exibição:", 3, 45, step=3, value=15)
+f'''###### Um _tour_ pelas palavras que estão na mídia:'''
 
 # ----------------------------------------------------------------- # Instanciação do DataFrame de palavras
-palavras, contagem, df_palavras = contar_palavras_news(r'data\processed\news_texto.txt', palavras)
+df_palavras, total_palavras, palavras_sem_repetir, total_caracteres = contar_palavras_news(r'data\processed\news_texto.txt', palavras)
 
-# ----------------------------------------------------------------- # Criação do gráfico de frequência de palavras com matplotlib
-fig, ax = plt.subplots(figsize=(35, 10))
-plt.bar(palavras, contagem)
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric(label="Total de palavras nas notícias:", value=str(total_palavras), border=True)
+with col2:
+    st.metric(label= "Palavras diferentes encontradas:", value=str(palavras_sem_repetir), border=True)
+with col3:
+    st.metric(label="Total de caracteres:", value=str(total_caracteres), border=True)
 
-# -------------- # Seção de métricas
-st.subheader("Métricas")                           
-contagem_chaves = 0
-for index, row in df_news.iterrows():
-    for palavra in palavras_chave:
-        if palavra in row['texto_materia']:
-            contagem_chaves += 1
-            
-num_palavras_chave, palavras_chave_resumos, col_palavras = st.columns(3)
+st.space()
 
-with num_palavras_chave:    
-    st.metric(label="Palavras chave:", value=len(palavras_chave))
-
-with palavras_chave_resumos:    
-    st.metric(label= "Frequência de palavras-chave", value=contagem_chaves)
-
-with col_palavras:
-    f'''*Palavras-chave*:  
-    {", ".join(palavras_chave)}'''   
+f'''### As {palavras} palavras mais frequntes nas notícias'''
+"Compare a frequência das palavras:"
 
 # -------------- #Exibição do gráfico
-st.pyplot(fig)
+st.bar_chart(
+    df_palavras,
+    x="palavra",
+    y="ocorrencias",
+    x_label="Palavras",
+    y_label="Número de ocorrências",
+    color="#4C78A8"
+)
 
 # -------------- #Exibição do DataFrame de frequência de palavras
-st.dataframe(df_palavras)
+with st.expander("Visualize as palavras mais frequentes em formato de tabela"):
+    st.dataframe(df_palavras)
