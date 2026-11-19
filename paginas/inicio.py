@@ -1,10 +1,10 @@
-import pandas as pd
-import json
-import numpy as np
-from functools import reduce
+#import pandas as pd
+#import json
+#import numpy as np
+#from functools import reduce
 import streamlit as st
-import time
-from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, carregar_noticias
+#import time
+#from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, carregar_noticias
 
 # --------------------------------------------------------------------------------------------------------------------- Configuração da página
 st.set_page_config(layout="wide")
@@ -20,14 +20,13 @@ if st.session_state.arquivo_usuario == None:
     st.session_state.dados_exibir = "Exibir dados originais (2015 a 2025)"   
 
 # --------------------------------------------------------------------------------------------------------------------- CARGA DADOS POPULAÇÃO
-df_populacao, fonte_populacao = carregar_dados_populacao()
+#df_populacao, fonte_populacao = carregar_dados_populacao()
 
-# REORDENAR O DF_ANÁLSE COM AS COLUNAS DE MAIOR INTERESSE PRIMEIRO
 # --------------------------------------------------------------------------------------------------------------------- CARGA DADOS DOENÇA
 # Chamada da função: carregar_dados_fonte(arquivo=None, json=True)
-dados = carregar_dados_fonte()   
-df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)  # casos carregados são apenas os confirmados
-df_analise = criar_analise(df_bairro_ano, df_populacao)
+#dados = carregar_dados_fonte()   
+#df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)  # casos carregados são apenas os confirmados
+#df_analise = criar_analise(df_bairro_ano, df_populacao)
 
 # --------------------------------------------------------------------------------------------------------------------- SE NECESSÁRIo
 # Dados com as hospitalizações e sem as métricas
@@ -35,23 +34,25 @@ df_analise = criar_analise(df_bairro_ano, df_populacao)
 
 # --------------------------------------------------------------------------------------------------------------------- OUTROS CONTROLES DE FLUXO PARA A PÁGINA (NO RERUN)
 if st.session_state.dados_exibir == "Exibir dados originais (2015 a 2025)":
-    if "df_bairros_hosp" not in st.session_state:
-        st.session_state.df_bairros_hosp = df_bairros_hosp    
-    if "df_bairros_todos" not in st.session_state:
-        st.session_state.df_bairros_todos = df_bairros_todos    
-    if "df_analise" not in st.session_state:
-        st.session_state.df_analise = df_analise    
+    # if "df_bairros_hosp" not in st.session_state:
+    #     st.session_state.df_bairros_hosp = df_bairros_hosp    
+    # if "df_bairros_todos" not in st.session_state:
+    #     st.session_state.df_bairros_todos = df_bairros_todos    
+    # if "df_analise" not in st.session_state:
+    #     st.session_state.df_analise = df_analise    
     if "subtitulo_dados" not in st.session_state:
         st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''    
     # Para recarregar os dados originais na exclusão do arquivo carregado pelo usuário
-    st.session_state.df_bairros_hosp = df_bairros_hosp
-    st.session_state.df_bairros_todos = df_bairros_todos
-    st.session_state.df_analise = df_analise
+    #st.session_state.df_bairros_hosp = df_bairros_hosp
+    #st.session_state.df_bairros_todos = df_bairros_todos
+    #st.session_state.df_analise = df_analise
     st.session_state.subtitulo_dados = ''' ## Incidência de casos confirmados de dengue ou chikungunya na cidade do Recife:'''
     
 # ---------------------------------------------------------------------------------------------------------------------  TELA
+
 st.divider()
-st.title('Gravidade clínica dos casos de arboviroses 🦟 - Chikungunya e Dengue - na cidade do Recife:')
+st.title('🦟 Gravidade clínica dos casos de Chikungunya na cidade do Recife:')
+'''_Série histórica de 2015 a 2025._'''
 st.divider()
 
 st.title('O que temos aqui ? 🦟🌡️🩺💊🩸🏥🩹🤕')

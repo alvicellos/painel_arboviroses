@@ -23,7 +23,10 @@ st.set_page_config(layout="wide")
 #st.write(st.session_state.dados_populacao)
 
 st.header("Dados da API da Prefeitura da Cidade do Recife ⭐🦁")
-st.subheader(''' Explore os dados originais e entenda as colunas''')
+
+"Os registros reúnem notificações de casos de chikungunya no Recife de 2015 a 2025." '''Dados estão disponíveis na [API da Prefeitura do Recife](https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya).'''
+
+st.subheader(''' Explore os dados originais e entenda as colunas:''')
 # ----------------------------------------------------------------------------- Sobre os dados
 
 #colunas_analise = ['HOSPITALIZ', 'EVOLUCAO', 'CLASSI_FIN']
@@ -260,7 +263,7 @@ ano de 2016: {dados_exclusao_anos.get(2016, 0)}
 casos sem confirmação da doença: {n_linhas_excluidas_classi + n_vazias_excluidas_classi}  
 > Ainda restaram {len(restante_bairros[restante_bairros['NM_BAIRRO'].isna()])} registros com a coluna 'NM_BAIRRO' sem preenchimento, expandir o quadro logo abaixo para visualizá-los...
 ##### Total de registros após tratamento dos dados: **{len(df_dados_tratados)}**
-Considerando o total de registros de todo o conjunto de dados representando casos confirmados de chikungunya {len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13])},  
+Considerando o total de registros de todo o conjunto de dados representando casos confirmados de chikungunya (_{len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13])}_ casos),  
 o percentual de registros que restaram após o tratamento dos dados é de:  
 **{len(df_dados_tratados) / len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13]) * 100:.2f}%**'''
 
@@ -274,7 +277,7 @@ st.divider()
 st.header("🏁 Dados tratados: ")
 '''##### É sobre esses dados que fala a página _análises_:'''
 
-df_limpo_classi
+df_dados_tratados
 
 '''
 ##### >> O que cada coluna mostra agora?
@@ -285,6 +288,3 @@ numeros_preenchimento = mostrar_preenchimento(df_limpo_classi, colunas_analise)
 preparar_metricas_graficos_dados(numeros_preenchimento, colunas_analise)
 
 st.write('''_O leão 🦁 e a estrela ⭐ são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')
-
-
-st.write(len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13]) - len(df_dados_tratados))
