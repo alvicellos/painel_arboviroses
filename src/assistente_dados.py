@@ -89,15 +89,15 @@ def gerar_resposta(pergunta, dados):
 
 def preparar_contexto(dados):
     contexto = """
-Dados epidemiológicos do Recife.
-
+Dados epidemiológicos do Recife. Cada registro é um caso confirmado de chikungunya.
+Os dados não incluem outras doenças, como dengue ou zika.
 Colunas do arquivo 'dados_bairros_anos.csv':
 NM_BAIRRO: bairro; NU_ANO: ano; TOTAL_CASOS: casos;
 TOTAL_HOSPITALIZACOES: hospitalizações; TOTAL_OBITOS: óbitos;
 POPULACAO: população; INCIDENCIA_100K: incidência por 100 mil;
 PERC_CASOS_HOSP: percentual de casos hospitalizados.
 Não some populações repetidas entre bairros ou entre anos.
-Observe a concordância verbal e nominal quando informar valores iguais a 1.
+Observe a concordância verbal e nominal quando informar valores iguais a 1;
 Por exemplo: "foi registrado 1 caso", "foi registrada 1 hospitalização",
 "foi registrado 1 óbito".
 Os dados fornecidos abaixo são um recorte de 'dados_bairros_anos.csv'.

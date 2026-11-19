@@ -22,21 +22,31 @@ N_PERGUNTAS = 10
 
 PERGUNTAS = [
     # Consultas diretas
+    #1
     "Quantos casos foram registrados nos Aflitos em 2017?",
+    #2
     "Quantas hospitalizações foram registradas na Tamarineira em em 2021?",
+    #3 
     "Quantos óbitos foram registrados em Areias em 2019?",
 
     # Evolução temporal
+    #4
     "Como evoluiu a quantidade de casos na Imbiribeira ao longo dos anos disponíveis?",
 
     # Comparação entre bairros
+    #5
     "Qual bairro registrou a maior quantidade de casos em 2020? Informe o bairro e a quantidade.",
 
     # Novas perguntas
+    #6
     "Qual bairro registrou a maior quantidade de hospitalizações em 2018? Informe o bairro e a quantidade.",
+    #7
     "Qual bairro apresentou a maior incidência de casos por 100 mil habitantes em 2017? Informe o bairro e a incidência.",
+    #8
     "Qual foi o percentual de casos hospitalizados em Jardim Sao Paulo em 2021?",
+    #9
     "Em Dois Unidos, qual ano apresentou a maior quantidade de casos? Informe o ano e a quantidade.",
+    #10
     "Quais foram os três bairros com maior quantidade de óbitos em 2019? Informe os bairros e suas respectivas quantidades."
 ]
 
@@ -44,7 +54,7 @@ PERGUNTAS = [
 # CONTEXTO
 #arquivos = ["dados_bairros_anos.csv", "serie_historica_cidade.csv", "acumulado_bairros.csv"]
 #arquivos = ["dados_bairros_anos.csv"]
-arquivos = ["serie_historica_cidade.csv"]
+#arquivos = ["serie_historica_cidade.csv"]
 
 def preparar_contexto():
     contexto = """Dados epidemiológicos do Recife.
@@ -68,9 +78,6 @@ Por exemplo, "foi registrado 1 caso", "foi regisrada 1 hospitalização", "foi r
         contexto += f"\n{arquivo}:\n{df.to_csv(index=False)}"
     
     return contexto
-
-    
-
 
 # TESTES
 def testar():

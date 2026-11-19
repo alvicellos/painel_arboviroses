@@ -13,7 +13,7 @@ validacao_bairros = Literal[tuple(bairros)]
 app = FastAPI(
     title="API Painel de Arboviroses - Cidade do Recife",    
     description=(
-        "Dados coletados da API da prefs + dados de população do IBGEO"
+        "Dados coletados da API da prefs + dados de população do IBGE"
         "e algumas análises da ocorrência dos casos da doença por bairros"
     ),
 )

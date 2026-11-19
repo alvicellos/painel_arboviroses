@@ -201,6 +201,8 @@ df_limpo_classi = st.session_state.dados_tratados
 dados_exclusao_anos = st.session_state.dados_exclusao_anos
 n_linhas_excluidas_classi = st.session_state.n_linhas_excluidas_classi
 n_vazias_excluidas_classi = st.session_state.n_vazias_excluidas_classi
+restante_bairros = st.session_state.dados_tratados_restante_bairros
+df_dados_tratados = st.session_state.dados_tratados
 
 # ------------------------  Fim Tratamento dos dados     ------------------------------------------
 
@@ -256,11 +258,18 @@ Queremos manter apenas os casos confirmados de chikungunya. Podemos considerar o
 ano de 2015: {dados_exclusao_anos.get(2015, 0)}  
 ano de 2016: {dados_exclusao_anos.get(2016, 0)}  
 casos sem confirmação da doença: {n_linhas_excluidas_classi + n_vazias_excluidas_classi}  
-##### Total de registros após tratamento dos dados: **{len(df_limpo_classi)}**  
-Uma perda significativa, porém necessária para a consistência da análise.'''
-
+> Ainda restaram {len(restante_bairros[restante_bairros['NM_BAIRRO'].isna()])} registros com a coluna 'NM_BAIRRO' sem preenchimento, expandir o quadro logo abaixo para visualizá-los...
+##### Total de registros após tratamento dos dados: **{len(df_dados_tratados)}**
+Considerando o total de registros de todo o conjunto de dados representando casos confirmados de chikungunya {len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13])},  
+o percentual de registros que restaram após o tratamento dos dados é de:  
+**{len(df_dados_tratados) / len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13]) * 100:.2f}%**'''
 
 # ---------------------------------------------------------------------------------- Exibição dos dados tratados
+
+with st.expander("Registros com dados de bairro sem preenchimento (clique ⬇️ para expandir):", expanded=False):
+    restante_bairros[restante_bairros['NM_BAIRRO'].isna()]
+
+
 st.divider()
 st.header("🏁 Dados tratados: ")
 '''##### É sobre esses dados que fala a página _análises_:'''
@@ -275,4 +284,7 @@ df_limpo_classi
 numeros_preenchimento = mostrar_preenchimento(df_limpo_classi, colunas_analise)   
 preparar_metricas_graficos_dados(numeros_preenchimento, colunas_analise)
 
-st.write('''_O leão 🦁 e a estrela ⭐🦁 são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')
+st.write('''_O leão 🦁 e a estrela ⭐ são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')
+
+
+st.write(len(st.session_state.dados_api[st.session_state.dados_api['CLASSI_FIN'] == 13]) - len(df_dados_tratados))

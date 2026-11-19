@@ -40,18 +40,25 @@ def inicializar_estado() -> None:
             anos_exclusao,
         )
 
-        st.session_state.dados_tratados = df_limpo_classi
+        st.session_state.dados_tratados_restante_bairros = df_limpo_classi
+        st.session_state.dados_tratados = df_limpo_classi.dropna(subset='NM_BAIRRO')
         st.session_state.dados_exclusao_anos = dados_exclusao_anos
         st.session_state.n_linhas_excluidas_classi = n_linhas_excluidas_classi
         st.session_state.n_vazias_excluidas_classi = n_vazias_excluidas_classi
+        
+        # Retirando bairros que sobraram com None
+        # st.session_state.dados_tratados = st.session_state.dados_tratados.dropna(subset='NM_BAIRRO')
+
 
     if "df_analise" not in st.session_state:
-        dados = st.session_state.dados_tratados.dropna(
-            subset=["NM_BAIRRO"]
-        )
+        #dados = st.session_state.dados_tratados.dropna(
+        #    subset=["NM_BAIRRO"]
+        #)
 
+        dados_tratados = st.session_state.dados_tratados
+        
         df_bairros_todos, df_bairros_hosp, df_bairro_ano = (
-            agregacao_bairros(dados)
+            agregacao_bairros(dados_tratados)
         )
 
         df_analise = criar_analise(

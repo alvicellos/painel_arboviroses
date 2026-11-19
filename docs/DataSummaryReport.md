@@ -27,12 +27,12 @@ Para a análise por localidade, são necessários o ano e o bairro. A classifica
 
 ## Transformações
 
-* Exclusão dos anos de **2015 e 2016**, devido à quantidade de registros sem identificação do bairro.
+* Exclusão dos anos de **2015 e 2016**, devido à quantidade de registros sem identificação do bairro, o que prejudicaria a análise.
 * Exclusão de classificações vazias e dos códigos `1`, `2`, `5`, `8`, `10`, `11` e `12`, conforme o tratamento implementado para manter o recorte de chikungunya.
 * Exclusão dos registros sem bairro antes das agregações por localidade.
 * Contagem de hospitalizações pelo código `HOSPITALIZ == 1` e de óbitos pelo agravo pelo código `EVOLUCAO == 2`.
 
-O período utilizado nas análises é de **2017 a 2025** - nos anos de 2015 e 2016 há muitos registros sem o bairro preenchido, o que comprometeria a consistência da análise. Os campos ignorados ou sem informação não são contabilizados como hospitalizações ou óbitos confirmados, mas também não comprovam a ausência desses eventos.
+O período utilizado nas análises é de **2017 a 2025**. Os campos ignorados ou sem informação não são contabilizados como hospitalizações ou óbitos confirmados, mas também não comprovam a ausência desses eventos.
 
 ## Agregações
 

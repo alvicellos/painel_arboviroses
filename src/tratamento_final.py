@@ -22,3 +22,4 @@ def gerar_dados_analise(dados, anos_exclusao):
            n_linhas_excluidas_classi, 
            n_vazias_excluidas_classi
     )
+

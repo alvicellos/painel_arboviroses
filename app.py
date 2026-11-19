@@ -2,6 +2,9 @@ import streamlit as st
 from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao
 from comum import inicializar_estado
 
+
+dados = carregar_dados_fonte()
+
 inicializar_estado()
 #df_limpo_classi, n_linhas_excluidas_classi, n_vazias_excluidas_classi = gerar_dados_analise()
 
@@ -29,12 +32,11 @@ pagina = st.navigation(
     }
 )
 
-# O que o roteador desenha aparece em TODA página — aqui, só um rodapé na barra lateral.
 preposicao = "da" if st.session_state.fonte_dados_populacao == "api" else "do"
 
 st.sidebar.caption(
     f'''Fontes:  
-    · API da Prefeitura da Cidade do Recife  
+    · API Prefeitura da Cidade do Recife  
     · Fiocruz (Webscraping)'''
 )
 
