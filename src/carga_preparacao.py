@@ -299,6 +299,9 @@ def criar_analise(dataframe_casos, dataframe_populacao):
     df_completo['PERC_CASOS_HOSP'] = ((df_completo['TOTAL_HOSPITALIZACOES'] / df_completo['TOTAL_CASOS']) * 100 )
     df_completo['PERC_CASOS_HOSP'] = df_completo['PERC_CASOS_HOSP'].round(2)
     df_completo = df_completo.drop(columns=["BAIRRO_MERGE"])
+    
+    # TODO # Quais o melhor cálculo para uma métrica incluindo o número de óbitos? Percentual de óbitos por casos ou percentual de óbitos por hospitalizações ?
+    # TODO # Ou por população, ou por incidências
         
     return df_completo
 
@@ -315,6 +318,9 @@ def carregar_noticias():
     return df_noticias
 
 
+# TODO # Trazer a lista 'anos' anos = [x for x in range(2017, 2026)] e anos_excluir = [2015, 2016] de comum.py
+
+#TODO #
 anos = [x for x in range(2017, 2026)]
 
 @st.cache_data(ttl=3600)
@@ -326,8 +332,9 @@ def tratamento_dados(dados_api):
         
         total_registros = len(dados_api)
         print(f"Total de registros:\n {total_registros}")
-        
-        anos_excluir = [2015, 2016]                                                            # excluir porque existem muitos registros com dados faltantes na coluna bairros
+
+        # TODO #
+        anos_excluir = [2015, 2016]  # excluir porque existem muitos registros com dados faltantes na coluna bairros
         df_tratado = dados_api.drop(dados_api[dados_api['NU_ANO'].isin(anos_excluir)].index)
         
         cod_hospitalizacao = {

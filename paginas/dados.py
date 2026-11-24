@@ -24,7 +24,7 @@ st.set_page_config(layout="wide")
 
 st.header("Dados da API da Prefeitura da Cidade do Recife ⭐🦁")
 
-"Os registros reúnem notificações de casos de chikungunya no Recife de 2015 a 2025." '''Dados estão disponíveis na [API da Prefeitura do Recife](https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya).'''
+"Os registros reúnem notificações de casos de chikungunya no Recife de 2015 a 2025. " '''Dados estão disponíveis na [API da Prefeitura do Recife](https://dados.recife.pe.gov.br/sv/dataset/casos-de-dengue-zika-e-chikungunya).'''
 
 st.subheader(''' Explore os dados originais e entenda as colunas:''')
 # ----------------------------------------------------------------------------- Sobre os dados
@@ -287,4 +287,4 @@ df_dados_tratados
 numeros_preenchimento = mostrar_preenchimento(df_limpo_classi, colunas_analise)   
 preparar_metricas_graficos_dados(numeros_preenchimento, colunas_analise)
 
-st.write('''_O leão 🦁 e a estrela ⭐ são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')
+st.write('''_O leão_ 🦁 _e a estrela_ ⭐ _são referências à [bandeira da cidade](https://pt.wikipedia.org/wiki/Bandeira_do_Recife)._''')

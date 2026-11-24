@@ -5,6 +5,8 @@ from comum import inicializar_estado
 
 dados = carregar_dados_fonte()
 
+# TODO # Validação entradas e saídas API para serviço da LLM (a final)
+
 inicializar_estado()
 #df_limpo_classi, n_linhas_excluidas_classi, n_vazias_excluidas_classi = gerar_dados_analise()
 

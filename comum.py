@@ -40,6 +40,8 @@ def inicializar_estado() -> None:
             anos_exclusao,
         )
 
+        #gerar_dados_analise()
+
         st.session_state.dados_tratados_restante_bairros = df_limpo_classi
         st.session_state.dados_tratados = df_limpo_classi.dropna(subset='NM_BAIRRO')
         st.session_state.dados_exclusao_anos = dados_exclusao_anos
