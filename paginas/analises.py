@@ -4,6 +4,7 @@
 #import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
 
 st.set_page_config(layout="wide")
 
@@ -44,6 +45,88 @@ if "filtros_ranking" not in st.session_state:
         "periodo": (int(min(ANOS)), int(max(ANOS))),
         "qtd_bairros": 10
     }
+
+# ============================================================
+# INTERFACE ASSISTENTE
+# ============================================================
+
+with st.expander("Assistente de análise"):
+    with st.form("assistente_analises_pergunta"):
+        pergunta = st.text_input(
+            "O que você quer explorar?",
+            max_chars=1000,
+            placeholder="Como vejo os cinco bairros com maior incidência?",
+        )
+        gerar = st.form_submit_button("Gerar orientação")
+
+    if gerar:
+        st.session_state.pop("assistente_analises_plano", None)
+
+        if not pergunta.strip():
+            st.info("Digite uma pergunta para gerar uma orientação.")
+        else:
+            contexto = {
+                "metricas": list(METRICAS),
+                "anos": [int(ano) for ano in ANOS],
+                "bairros": BAIRROS,
+            }
+
+            try:
+                with st.spinner("Gerando orientação com o modelo local..."):
+                    resposta = requests.post(
+                        "http://127.0.0.1:8000/assistente-analises/orientar",
+                        json={"pergunta": pergunta, "contexto": contexto},
+                        timeout=(3, 90),
+                    )
+                dados = resposta.json()
+
+                if resposta.ok:
+                    st.session_state.assistente_analises_plano = dados
+                else:
+                    detalhe = dados.get("detail")
+                    mensagem = (
+                        detalhe.get("mensagem")
+                        if isinstance(detalhe, dict)
+                        else None
+                    )
+                    if resposta.status_code == 404:
+                        st.warning("A rota de orientação não está disponível. Confira a API local.")
+                    else:
+                        st.warning(
+                            mensagem
+                            or f"Não foi possível gerar a orientação (HTTP {resposta.status_code})."
+                        )
+            except requests.exceptions.Timeout:
+                st.warning("A orientação demorou mais que o esperado. Tente novamente.")
+            except requests.exceptions.ConnectionError:
+                st.warning("Verifique se a API local do painel está em execução.")
+            except (requests.exceptions.RequestException, ValueError):
+                st.warning("Não foi possível ler a resposta da API local.")
+
+    plano = st.session_state.get("assistente_analises_plano")
+    if plano:
+        if plano["secao"] == "esclarecer":
+            st.text(plano["esclarecimento"])
+        elif plano["secao"] == "evolucao":
+            bairros = plano["bairros"]
+            if bairros:
+                st.write(f"Em **Evolução anual**, selecione {', '.join(bairros)}.")
+            else:
+                st.write("Em **Evolução anual**, limpe a seleção para ver todos os bairros.")
+        else:
+            st.write("Na barra lateral, abra **Filtros (comparação de indicadores)**.")
+
+            if plano["metrica"] is not None:
+                st.write(f"**Métrica do ranking** — {plano['metrica']}")
+
+            if plano["periodo"] is not None:
+                inicio, fim = plano["periodo"]
+                st.write(f"**Período do ranking** — {inicio} a {fim}")
+
+            if plano["qtd_bairros"] is not None:
+                st.write(f"**Quantidade de bairros a exibir** — {plano['qtd_bairros']}")
+
+            st.write("Clique em **Aplicar filtros** para atualizar o ranking e o mapa de calor.")
 
 # ============================================================
 # GRÁFICO DE LINHAS — EVOLUÇÃO ANUAL
@@ -266,6 +349,12 @@ if aplicar:
         "periodo": (ano_inicio, ano_fim),
         "qtd_bairros": qtd_bairros
     }
+
+filtros = st.session_state.filtros_ranking
+metrica_ranking = filtros["metrica"]
+metrica_secundaria = filtros["metrica_secundaria"]
+ano_inicio, ano_fim = filtros["periodo"]
+qtd_bairros = filtros["qtd_bairros"]
 
 coluna_metrica = METRICAS[metrica_ranking]
 

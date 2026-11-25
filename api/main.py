@@ -4,6 +4,19 @@ from fastapi import FastAPI, Body, Query, Path, HTTPException
 from typing import Literal
 from datetime import datetime
 
+import logging
+
+from pydantic import BaseModel
+
+from src.assistente_analises import (
+    ContextoAnalises,
+    PlanoAnalise,
+    PlanoInvalido,
+    gerar_plano,
+)
+
+from src.modelo_qwen import ModeloIndisponivel
+
 dados = carregar_dados_fonte()
 df_populacao = carregar_dados_populacao()   
 df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)
@@ -177,3 +190,65 @@ def analisar_dados(registros: list[dict] = Body(...)):
         "hospitalizacoes": hospitalizacoes,
         "obitos": obitos
     }
+
+
+
+logger = logging.getLogger(__name__)
+
+
+def erro_orientacao(status: int, codigo: str, mensagem: str) -> HTTPException:
+    return HTTPException(
+        status_code=status,
+        detail={"codigo": codigo, "mensagem": mensagem},
+    )
+
+
+from src.assistente_analises import (
+    ContextoAnalises,
+    PlanoAnalise,
+    PlanoInvalido,
+    gerar_plano,
+)
+
+
+class PedidoOrientacao(BaseModel):
+    pergunta: str
+    contexto: ContextoAnalises
+
+
+@app.post("/assistente-analises/orientar", response_model=PlanoAnalise)
+def orientar_analises(pedido: PedidoOrientacao) -> PlanoAnalise:
+    pergunta = pedido.pergunta.strip()
+
+    if not pergunta or len(pergunta) > 1000:
+        raise erro_orientacao(
+            422,
+            "pergunta_invalida",
+            "Digite uma pergunta de até 1.000 caracteres.",
+        )
+
+    try:
+        return gerar_plano(pergunta, pedido.contexto)
+    except ModeloIndisponivel as exc:
+        logger.exception("Falha ao carregar o modelo local.")
+        raise erro_orientacao(
+            503,
+            "modelo_indisponivel",
+            "Não foi possível carregar o Qwen3 0.6B. Confira "
+            "os arquivos em models/qwen3_0_6b.",
+        ) from exc
+    except PlanoInvalido as exc:
+        logger.warning("O modelo gerou um plano inválido: %s", exc)
+        raise erro_orientacao(
+            502,
+            "plano_invalido",
+            "O assistente não conseguiu validar a sugestão. "
+            "Tente reformular a pergunta.",
+        ) from exc
+    except (RuntimeError, ValueError, OSError) as exc:
+        logger.exception("Falha na geração do plano.")
+        raise erro_orientacao(
+            500,
+            "falha_inferencia",
+            "Ocorreu um erro ao gerar a orientação. Tente novamente.",
+        ) from exc
