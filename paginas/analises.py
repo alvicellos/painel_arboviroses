@@ -1,46 +1,19 @@
 ﻿import streamlit as st
 #from comum import inicializar_estado
-from src.carga_preparacao import agregacao_bairros, criar_analise, mostrar_preenchimento
-import pandas as pd
+#from src.carga_preparacao import agregacao_bairros, criar_analise, mostrar_preenchimento
+#import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 
-st.header("As análises 🔎")
+st.header("🔎 As análises")
 
 df_analise = st.session_state.df_analise
 #df_analise
 
 # ============================================================
-# 1. DATAFRAMES DISPONÍVEIS NO PROJETO
-# ============================================================
-
-# Substituir pelas variáveis já existentes no projeto.
-# df_analise: uma linha por bairro e ano
-# df_acumulado: uma linha por bairro, considerando todo o período
-
-# df_acumulado = (
-#     df_analise.groupby("NM_BAIRRO")
-#     .agg({
-#         "TOTAL_CASOS": "sum",
-#         "TOTAL_HOSPITALIZACOES": "sum",
-#         "TOTAL_OBITOS": "sum",
-#         "POPULACAO": "first"
-#     })
-#     .reset_index()
-# )
-
-# df_acumulado["INCIDENCIA_100K"] = (
-#     df_acumulado["TOTAL_CASOS"] / df_acumulado["POPULACAO"] * 100000
-# ).round(2)
-
-# df_acumulado["PERC_CASOS_HOSP"] = (
-#     df_acumulado["TOTAL_HOSPITALIZACOES"] / df_acumulado["TOTAL_CASOS"] * 100
-# ).round(2)
-
-# ============================================================
-# 2. CONFIGURAÇÕES
+# CONFIGURAÇÕES
 # ============================================================
 
 #st.title("Análise de Chikungunya")
@@ -56,97 +29,27 @@ METRICAS = {
     "Mortalidade / 100 mil": "MORTALIDADE_100K",
 }
 
-# COLUNAS_CONTAGEM = [
-#     "TOTAL_CASOS",
-#     "TOTAL_HOSPITALIZACOES",
-#     "TOTAL_OBITOS",
-# ]
-
 ANOS = sorted(df_analise["NU_ANO"].unique().tolist())
 BAIRROS = sorted(df_analise["NM_BAIRRO"].dropna().unique().tolist())
 
-# TODOS_ANOS = "Todos os anos"
+if "filtros_evolucao" not in st.session_state:
+    st.session_state.filtros_evolucao = {
+        "bairros": []
+    }
 
-
-# ============================================================
-# 3. FUNÇÕES AUXILIARES
-# ============================================================
-
-# def dados_periodo(periodo, df_anual, df_acumulado):
-#     """
-#     Retorna os dados do período selecionado.
-#     """
-#     if periodo == TODOS_ANOS:
-#         return df_acumulado.copy()
-
-#     return df_analise.loc[
-#         df_anual["NU_ANO"] == periodo
-#     ].copy()
-
-
-# def formatar_numero(valor, casas=0):
-#     return f"{valor:,.{casas}f}".replace(
-#         ",", "X"
-#     ).replace(".", ",").replace("X", ".")
-
-
-# def formatar_percentual(valor):
-#     return f"{formatar_numero(valor, 1)}%"
-
+if "filtros_ranking" not in st.session_state:
+    st.session_state.filtros_ranking = {
+        "metrica": "Casos confirmados",
+        "metrica_secundaria": "Nenhuma",
+        "periodo": (int(min(ANOS)), int(max(ANOS))),
+        "qtd_bairros": 10
+    }
 
 # ============================================================
-# 4. FILTROS PRINCIPAIS
+# GRÁFICO DE LINHAS — EVOLUÇÃO ANUAL
 # ============================================================
 
-# ''' ##### Filtros da análise:'''
-# with st.form("filtro_analises"):
-
-#     col_bairros, col_periodo = st.columns(2)
-
-#     with col_periodo:
-#         periodo = st.selectbox(
-#             "Período",
-#             options=[TODOS_ANOS] + ANOS,
-#             key="analise_periodo",
-#         )
-
-#     with col_bairros:
-               
-#         bairros_selecionados = st.multiselect(
-#             "Selecione os bairros",
-#             options=BAIRROS,
-#             key="analise_bairros",
-#             default=BAIRROS
-#         )
-
-
-#     aplicar = st.form_submit_button(
-#         "Aplicar filtros",
-#         type="primary",
-#         #on_click=aplicar_filtros
-#     )
-
-
-# # Dados correspondentes aos filtros principais
-# df_periodo = dados_periodo(
-#     periodo, df_analise, df_acumulado
-# )
-
-# df_filtrado = df_periodo.loc[
-#     df_periodo["NM_BAIRRO"].isin(bairros_selecionados)
-# ].copy()
-
-# ============================================================
-# 6. GRÁFICO DE LINHAS — EVOLUÇÃO ANUAL
-# ============================================================
-
-'''##### Evolução anual '''
-
-st.caption(
-    "Comparação entre casos confirmados e "
-    "percentual de casos hospitalizados"
-)
-
+f'''##### Evolução anual'''
 
 # Espaço reservado para o gráfico
 espaco_grafico = st.empty()
@@ -157,10 +60,12 @@ with st.expander("Selecione bairros para filtrar a exibição dos dados de evolu
     bairros_selecionados = st.multiselect(
         "Selecione os bairros",
         options=BAIRROS,
-        default=[],
+        default=st.session_state.filtros_evolucao["bairros"],
         placeholder="Todos os bairros",
         key="evolucao_bairros"
     )
+
+st.session_state.filtros_evolucao["bairros"] = bairros_selecionados.copy()
 
 # Se nenhum bairro for selecionado, considerar todos
 if not bairros_selecionados:
@@ -219,6 +124,19 @@ fig_linhas.add_trace(
 
 # Configuração visual
 fig_linhas.update_layout(
+
+    title=dict(
+        text=(
+            "Casos confirmados X Percentual de casos hospitalizados<br>"
+            f"({df_evolucao['NU_ANO'].min()} a "
+            f"{df_evolucao['NU_ANO'].max()})"
+        ),
+        x=0.5,
+        xanchor="center",
+        font=dict(size=16)
+    ),
+
+
     height=420,
     hovermode="x unified",
     margin=dict(l=20, r=20, t=40, b=20),
@@ -258,11 +176,11 @@ espaco_grafico.plotly_chart(
 )
 
 if len(bairros_selecionados) == len(BAIRROS):
-    st.caption("Exibindo evolução de todos os bairros.")
+    st.caption(f"O gráfico está exibindo dados de todos os bairros.")
 else:
-    bairro = "o bairro" if len(bairros_selecionados) == 1 else "os bairros"
+    bairro = "do bairro" if len(bairros_selecionados) == 1 else "dos bairros"
     st.caption(
-        f"Exibindo evolução para {bairro}: {', '.join(bairros_selecionados)}."
+        f"O gráfico está exibindo dados {bairro}: {', '.join(bairros_selecionados[:-1])} e {bairros_selecionados[-1]}."
     )
 
 # ============================================================
@@ -271,71 +189,83 @@ else:
 
 st.divider()
 
-st.subheader("Os Ranking dos bairros")
-'''###### Os X mais'''
+st.subheader("🏘️ Ranking dos bairros")
+
+'''➡️ Utilize o filtro disponível na barra lateral e selecione as métricas que deseja comparar.'''
+'''➡️ O primeiro gráfico exibe um ranking dos bairros com os maiores números para a métrica escolhida (gráfico de barras). Ao selecionar a métrica comparativa, essa será exibida como gráfico de linha sobre o gráfico de barras.
+
+➡️ O segundo gráfico é um mapa de calor. Ele mostra uma comparação das posições dos bairros selecionados no primeiro gráfico para cada indicador epidemiológico.'''
 
 
-metricas_ranking = ["Casos confirmados", "Incidência / 100 mil", "Hospitalizações"]
-ranking_secundaria = ["Óbitos", "Incidência / 100 mil", "Casos hospitalizados (%)", "Letalidade (%)"]
+#metricas_ranking = ["Casos confirmados", "Incidência / 100 mil", "Hospitalizações"]
+#ranking_secundaria = ["Óbitos", "Incidência / 100 mil", "Casos hospitalizados (%)", "Letalidade (%)"]
 
+filtros = st.session_state.filtros_ranking
 
-col_filtros_evolucao, col_grafico_evolucao = st.columns([1, 3])
+with st.sidebar:
 
-with col_filtros_evolucao:
+    st.divider()
+    st.subheader("Filtros (comparação de indicadores)")
+
     with st.form("Filtros"):
 
         metrica_ranking = st.selectbox(
             "Métrica do ranking",
             options=list(METRICAS.keys()),
-            #options = metricas_ranking,
-            key="ranking_metrica",
+            index=list(METRICAS.keys()).index(filtros["metrica"]),
+            key="ranking_metrica"
         )
-        
-        # METRICAS = {
-        # "Casos confirmados": "TOTAL_CASOS",
-        # "Hospitalizações": "TOTAL_HOSPITALIZACOES",
-        # "Óbitos": "TOTAL_OBITOS",
-        # "Incidência / 100 mil": "INCIDENCIA_100K",
-        # "Casos hospitalizados (%)": "PERC_CASOS_HOSP",
-        # "Letalidade (%)": "LETALIDADE",
-        # "Mortalidade / 100 mil": "MORTALIDADE_100K",
-        # }
-        
-        opcoes_secundarias = [
+
+        opcoes_secundarias = ["Nenhuma"] + [
             metrica for metrica in METRICAS
             if metrica != metrica_ranking
         ]
 
         metrica_secundaria = st.selectbox(
             "Métrica comparativa",
-            options=["Nenhuma"] + opcoes_secundarias,
-            #options=["Nenhuma"] + ranking_secundaria,
+            options=opcoes_secundarias,
+            index=(
+                opcoes_secundarias.index(filtros["metrica_secundaria"])
+                if filtros["metrica_secundaria"] in opcoes_secundarias
+                else 0
+            ),
             key="ranking_metrica_secundaria"
-        )    
-        
+        )
+
         ano_inicio, ano_fim = st.slider(
             "Período do ranking",
             min_value=int(min(ANOS)),
             max_value=int(max(ANOS)),
-            value=(int(min(ANOS)), int(max(ANOS))),
+            value=filtros["periodo"],
             step=1,
-            key="ranking_periodo_slider",
+            key="ranking_periodo_slider"
         )
-    
+
         qtd_bairros = st.slider(
-        "Quantidade de bairros a exibir",
-        min_value=1,
-        max_value=20,
-        value=10,
-        step=1,
-        key="ranking_qtd_bairros"
+            "Quantidade de bairros a exibir",
+            min_value=1,
+            max_value=20,
+            value=filtros["qtd_bairros"],
+            step=1,
+            key="ranking_qtd_bairros"
         )
-        
+
         aplicar = st.form_submit_button(
             "Aplicar filtros",
             type="primary"
         )
-        
+
+    st.caption(
+        "Os filtros se aplicam ao ranking e ao mapa de calor."
+    )
+
+if aplicar:
+    st.session_state.filtros_ranking = {
+        "metrica": metrica_ranking,
+        "metrica_secundaria": metrica_secundaria,
+        "periodo": (ano_inicio, ano_fim),
+        "qtd_bairros": qtd_bairros
+    }
 
 coluna_metrica = METRICAS[metrica_ranking]
 
@@ -372,6 +302,8 @@ df_ranking["LETALIDADE"] = (
 df_ranking["MORTALIDADE_100K"] = (
     df_ranking["TOTAL_OBITOS"] / populacao * 100000
 ).round(2)
+
+df_ranking_completo = df_ranking.copy()
 
 df_ranking = (
     df_ranking
@@ -470,74 +402,100 @@ fig_barras.update_xaxes(
 )
 
 
-with col_grafico_evolucao:
-    with st.container(border=True):
-        
-        st.plotly_chart(
-            fig_barras,
-            use_container_width=True,
+with st.container(border=True):
+
+    st.plotly_chart(
+        fig_barras,
+        use_container_width=True,
+    )
+
+# ============================================================
+# MAPA DE CALOR — COMPARAÇÃO ENTRE MÉTRICAS
+# ============================================================
+
+# Colunas das métricas
+colunas_metricas = list(METRICAS.values())
+
+# Bairros exibidos no gráfico de ranking
+bairros_ranking = df_ranking["NM_BAIRRO"].tolist()
+
+# DataFrame completo indexado por bairro
+df_heatmap = df_ranking_completo.set_index("NM_BAIRRO")
+
+# Cálculo das posições no ranking geral
+df_posicoes = df_heatmap[colunas_metricas].rank(
+    ascending=False,
+    method="min"
+)
+
+# Seleção dos mesmos bairros do gráfico de barras
+df_posicoes = df_posicoes.loc[bairros_ranking]
+
+# Valores reais das métricas para exibição no hover
+df_valores = df_heatmap.loc[
+    bairros_ranking, colunas_metricas
+]
+
+# Criação do mapa de calor
+fig_heatmap = go.Figure(
+    data=go.Heatmap(
+        z=df_posicoes.to_numpy(),
+        x=list(METRICAS.keys()),
+        y=bairros_ranking,
+
+        text=df_posicoes.to_numpy(),
+        texttemplate="%{text:.0f}º",
+
+        customdata=df_valores.to_numpy(),
+
+        colorscale="Blues_r",
+        zmin=1,
+        zmax=len(df_ranking_completo),
+
+        xgap=2,
+        ygap=2,
+
+        colorbar=dict(
+            title="Posição",
+            #autorange="reversed"
+        ),
+
+        hovertemplate=(
+            "<b>%{y}</b><br>"
+            "Indicador: %{x}<br>"
+            "Valor: %{customdata:.2f}<br>"
+            "Posição no ranking: %{z:.0f}º"
+            "<extra></extra>"
         )
-
-#f'''Exibindo {qtd_bairros} bairros com maiores números de {metrica_ranking}, comparando com {metrica_secundaria}, no período de {ano_inicio} a {ano_fim}.'''
-
-
-# ============================================================
-# 5. CARDS DE MÉTRICAS
-# ============================================================
-
-
-total_casos = df_analise["TOTAL_CASOS"].sum()
-total_hosp = df_analise["TOTAL_HOSPITALIZACOES"].sum()
-total_obitos = df_analise["TOTAL_OBITOS"].sum()
-
-perc_hosp = (
-    total_hosp / total_casos * 100
-    if total_casos > 0 else 0
+    )
 )
 
-letalidade = (
-    total_obitos / total_casos * 100
-    if total_casos > 0 else 0
+# Configuração visual
+fig_heatmap.update_layout(
+    title=dict(
+        text=f"Comparação dos indicadores ({ano_inicio} a {ano_fim})",
+        x=0.5,
+        xanchor="center",
+        font=dict(size=16)
+    ),
+
+    height=max(350, 180 + len(bairros_ranking) * 32),
+
+    margin=dict(l=20, r=20, t=70, b=100),
+
+    xaxis=dict(
+        title=None,
+        tickangle=-35
+    ),
+
+    yaxis=dict(
+        title=None,
+        autorange="reversed"
+    )
 )
 
-
-# with st.container(border=True):
-
-#     c1, c2, c3, c4, c5 = st.columns(5)
-
-#     c1.metric(
-#         "Casos confirmados",
-#         formatar_numero(total_casos),
-#         border=True
-#     )
-
-#     c2.metric(
-#         "Hospitalizações",
-#         formatar_numero(total_hosp),
-#         border=True
-#     )
-
-#     c3.metric(
-#         "Óbitos",
-#         formatar_numero(total_obitos),
-#         border=True
-#     )
-
-#     c4.metric(
-#         "Casos hospitalizados",
-#         formatar_percentual(perc_hosp),
-#         border=True
-#     )
-
-#     c5.metric(
-#         "Letalidade",
-#         f"{letalidade:.3f}%",
-#         #formatar_percentual(letalidade),
-#         border=True
-#     )
-
-
-# st.divider()
-
-
-"HeatMAP"
+with st.container(border=True):
+    st.plotly_chart(
+        fig_heatmap,
+        use_container_width=True
+    )

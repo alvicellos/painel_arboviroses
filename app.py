@@ -34,14 +34,15 @@ pagina = st.navigation(
     }
 )
 
-preposicao = "da" if st.session_state.fonte_dados_populacao == "api" else "do"
+st.sidebar.caption(
+    f'''Fontes:'''
+)
 
 st.sidebar.caption(
-    f'''Fontes:  
+    f''' 
     · API Prefeitura da Cidade do Recife  
-    · Fiocruz (Webscraping)'''
+    · Fiocruz (Webscraping)  
+    · Origem dos dados populacionais: {st.session_state.fonte_dados_populacao.upper()}'''
 )
 
 pagina.run()
-
-#· Dados de população foram carregados {preposicao} {st.session_state.fonte_dados_populacao.upper()}'''

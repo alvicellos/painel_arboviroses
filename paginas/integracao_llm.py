@@ -74,9 +74,9 @@ if "ultima_resposta_llm" in st.session_state:
 
 st.divider()
 
-st.subheader("Confira a resposta nos dados")
+st.subheader("Confira a resposta:")
 st.caption(
-    "Selecione os mesmos bairros e anos da pergunta. "
+    "Para conferir o modelo respondeu corretamente, selecione os mesmos bairros e anos da pergunta e localize a resposta."
     "Sem seleção, todos os registros serão considerados."
 )
 
