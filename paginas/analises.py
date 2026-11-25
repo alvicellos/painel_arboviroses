@@ -20,24 +20,24 @@ df_analise = st.session_state.df_analise
 # df_analise: uma linha por bairro e ano
 # df_acumulado: uma linha por bairro, considerando todo o período
 
-df_acumulado = (
-    df_analise.groupby("NM_BAIRRO")
-    .agg({
-        "TOTAL_CASOS": "sum",
-        "TOTAL_HOSPITALIZACOES": "sum",
-        "TOTAL_OBITOS": "sum",
-        "POPULACAO": "first"
-    })
-    .reset_index()
-)
+# df_acumulado = (
+#     df_analise.groupby("NM_BAIRRO")
+#     .agg({
+#         "TOTAL_CASOS": "sum",
+#         "TOTAL_HOSPITALIZACOES": "sum",
+#         "TOTAL_OBITOS": "sum",
+#         "POPULACAO": "first"
+#     })
+#     .reset_index()
+# )
 
-df_acumulado["INCIDENCIA_100K"] = (
-    df_acumulado["TOTAL_CASOS"] / df_acumulado["POPULACAO"] * 100000
-).round(2)
+# df_acumulado["INCIDENCIA_100K"] = (
+#     df_acumulado["TOTAL_CASOS"] / df_acumulado["POPULACAO"] * 100000
+# ).round(2)
 
-df_acumulado["PERC_CASOS_HOSP"] = (
-    df_acumulado["TOTAL_HOSPITALIZACOES"] / df_acumulado["TOTAL_CASOS"] * 100
-).round(2)
+# df_acumulado["PERC_CASOS_HOSP"] = (
+#     df_acumulado["TOTAL_HOSPITALIZACOES"] / df_acumulado["TOTAL_CASOS"] * 100
+# ).round(2)
 
 # ============================================================
 # 2. CONFIGURAÇÕES
@@ -50,48 +50,48 @@ METRICAS = {
     "Casos confirmados": "TOTAL_CASOS",
     "Hospitalizações": "TOTAL_HOSPITALIZACOES",
     "Óbitos": "TOTAL_OBITOS",
-    "Incidência / 100 mil": "incidencia_100k",
-    "Casos hospitalizados (%)": "perc_casos_hosp",
-    "Letalidade (%)": "letalidade",
-    "Mortalidade / 100 mil": "mortalidade_100k",
+    "Incidência / 100 mil": "INCIDENCIA_100K",
+    "Casos hospitalizados (%)": "PERC_CASOS_HOSP",
+    "Letalidade (%)": "LETALIDADE",
+    "Mortalidade / 100 mil": "MORTALIDADE_100K",
 }
 
-COLUNAS_CONTAGEM = [
-    "TOTAL_CASOS",
-    "TOTAL_HOSPITALIZACOES",
-    "TOTAL_OBITOS",
-]
+# COLUNAS_CONTAGEM = [
+#     "TOTAL_CASOS",
+#     "TOTAL_HOSPITALIZACOES",
+#     "TOTAL_OBITOS",
+# ]
 
 ANOS = sorted(df_analise["NU_ANO"].unique().tolist())
 BAIRROS = sorted(df_analise["NM_BAIRRO"].dropna().unique().tolist())
 
-TODOS_ANOS = "Todos os anos"
+# TODOS_ANOS = "Todos os anos"
 
 
 # ============================================================
 # 3. FUNÇÕES AUXILIARES
 # ============================================================
 
-def dados_periodo(periodo, df_anual, df_acumulado):
-    """
-    Retorna os dados do período selecionado.
-    """
-    if periodo == TODOS_ANOS:
-        return df_acumulado.copy()
+# def dados_periodo(periodo, df_anual, df_acumulado):
+#     """
+#     Retorna os dados do período selecionado.
+#     """
+#     if periodo == TODOS_ANOS:
+#         return df_acumulado.copy()
 
-    return df_analise.loc[
-        df_anual["NU_ANO"] == periodo
-    ].copy()
-
-
-def formatar_numero(valor, casas=0):
-    return f"{valor:,.{casas}f}".replace(
-        ",", "X"
-    ).replace(".", ",").replace("X", ".")
+#     return df_analise.loc[
+#         df_anual["NU_ANO"] == periodo
+#     ].copy()
 
 
-def formatar_percentual(valor):
-    return f"{formatar_numero(valor, 1)}%"
+# def formatar_numero(valor, casas=0):
+#     return f"{valor:,.{casas}f}".replace(
+#         ",", "X"
+#     ).replace(".", ",").replace("X", ".")
+
+
+# def formatar_percentual(valor):
+#     return f"{formatar_numero(valor, 1)}%"
 
 
 # ============================================================
@@ -140,59 +140,31 @@ def formatar_percentual(valor):
 # 6. GRÁFICO DE LINHAS — EVOLUÇÃO ANUAL
 # ============================================================
 
-'''##### Evolução anual'''
+'''##### Evolução anual '''
 
 st.caption(
     "Comparação entre casos confirmados e "
     "percentual de casos hospitalizados"
 )
 
-with st.form("filtro_evolucao"):
 
-    col1, col2 = st.columns(2)
-    
+# Espaço reservado para o gráfico
+espaco_grafico = st.empty()
 
-    with col2:
-    
-        modo_selecao = st.radio(
-            "Abrangência da análise",
-            options=["Todos os bairros", "Bairros selecionados"],
-            horizontal=True,
-            key="modo_evolucao"
-        )
+# Filtro dos bairros
 
-    with col1: 
-        bairros_personalizados = st.multiselect(
-            "Selecione os bairros",
-            options=BAIRROS,
-            default=[],
-            key="evolucao_bairros"
-        )
-
-    aplicar = st.form_submit_button(
-        "Aplicar filtros",
-        type="primary"
+with st.expander("Selecione bairros para filtrar a exibição dos dados de evolução anual. Se não houver seleção, todos os bairros serão exibidos."):
+    bairros_selecionados = st.multiselect(
+        "Selecione os bairros",
+        options=BAIRROS,
+        default=[],
+        placeholder="Todos os bairros",
+        key="evolucao_bairros"
     )
 
-if modo_selecao == "Todos os bairros":
+# Se nenhum bairro for selecionado, considerar todos
+if not bairros_selecionados:
     bairros_selecionados = BAIRROS.copy()
-else:
-    bairros_selecionados = bairros_personalizados
-
-# Exibição dos bairros selecionados
-if len(bairros_selecionados) == len(BAIRROS):
-    st.caption(
-        f"Todos os bairros selecionados ({len(BAIRROS)})"
-    )
-
-else:
-    with st.expander(
-        f"Bairros selecionados ({len(bairros_selecionados)})"
-    ):
-        st.write(
-            ", ".join(bairros_selecionados)
-            or "Nenhum bairro selecionado"
-        )
 
 # Filtragem dos bairros selecionados
 df_evolucao = df_analise.loc[
@@ -280,37 +252,90 @@ fig_linhas.update_layout(
     ),
 )
 
-st.plotly_chart(
+espaco_grafico.plotly_chart(
     fig_linhas,
     use_container_width=True,
 )
+
+if len(bairros_selecionados) == len(BAIRROS):
+    st.caption("Exibindo evolução de todos os bairros.")
+else:
+    bairro = "o bairro" if len(bairros_selecionados) == 1 else "os bairros"
+    st.caption(
+        f"Exibindo evolução para {bairro}: {', '.join(bairros_selecionados)}."
+    )
 
 # ============================================================
 # 7. RANKING DOS BAIRROS — FILTROS INDEPENDENTES
 # ============================================================
 
 st.divider()
-st.subheader("Ranking dos bairros")
 
-col_ranking_periodo, col_ranking_metrica = st.columns(2)
+st.subheader("Os Ranking dos bairros")
+'''###### Os X mais'''
 
-with col_ranking_periodo:
 
-    ano_inicio, ano_fim = st.slider(
-        "Período do ranking",
-        min_value=int(min(ANOS)),
-        max_value=int(max(ANOS)),
-        value=(int(min(ANOS)), int(max(ANOS))),
+metricas_ranking = ["Casos confirmados", "Incidência / 100 mil", "Hospitalizações"]
+ranking_secundaria = ["Óbitos", "Incidência / 100 mil", "Casos hospitalizados (%)", "Letalidade (%)"]
+
+
+col_filtros_evolucao, col_grafico_evolucao = st.columns([1, 3])
+
+with col_filtros_evolucao:
+    with st.form("Filtros"):
+
+        metrica_ranking = st.selectbox(
+            "Métrica do ranking",
+            options=list(METRICAS.keys()),
+            #options = metricas_ranking,
+            key="ranking_metrica",
+        )
+        
+        # METRICAS = {
+        # "Casos confirmados": "TOTAL_CASOS",
+        # "Hospitalizações": "TOTAL_HOSPITALIZACOES",
+        # "Óbitos": "TOTAL_OBITOS",
+        # "Incidência / 100 mil": "INCIDENCIA_100K",
+        # "Casos hospitalizados (%)": "PERC_CASOS_HOSP",
+        # "Letalidade (%)": "LETALIDADE",
+        # "Mortalidade / 100 mil": "MORTALIDADE_100K",
+        # }
+        
+        opcoes_secundarias = [
+            metrica for metrica in METRICAS
+            if metrica != metrica_ranking
+        ]
+
+        metrica_secundaria = st.selectbox(
+            "Métrica comparativa",
+            options=["Nenhuma"] + opcoes_secundarias,
+            #options=["Nenhuma"] + ranking_secundaria,
+            key="ranking_metrica_secundaria"
+        )    
+        
+        ano_inicio, ano_fim = st.slider(
+            "Período do ranking",
+            min_value=int(min(ANOS)),
+            max_value=int(max(ANOS)),
+            value=(int(min(ANOS)), int(max(ANOS))),
+            step=1,
+            key="ranking_periodo_slider",
+        )
+    
+        qtd_bairros = st.slider(
+        "Quantidade de bairros a exibir",
+        min_value=1,
+        max_value=20,
+        value=10,
         step=1,
-        key="ranking_periodo_slider",
-    )
-
-with col_ranking_metrica:
-    metrica_ranking = st.selectbox(
-        "Métrica do ranking",
-        options=list(METRICAS.keys()),
-        key="ranking_metrica",
-    )
+        key="ranking_qtd_bairros"
+        )
+        
+        aplicar = st.form_submit_button(
+            "Aplicar filtros",
+            type="primary"
+        )
+        
 
 coluna_metrica = METRICAS[metrica_ranking]
 
@@ -348,6 +373,13 @@ df_ranking["MORTALIDADE_100K"] = (
     df_ranking["TOTAL_OBITOS"] / populacao * 100000
 ).round(2)
 
+df_ranking = (
+    df_ranking
+    .dropna(subset=[coluna_metrica])
+    .sort_values(coluna_metrica, ascending=False)
+    .head(qtd_bairros)
+)
+
 fig_barras = px.bar(
     df_ranking,
     x="NM_BAIRRO",
@@ -364,22 +396,89 @@ fig_barras.update_traces(
     textposition="outside",
 )
 
+# Inclusão da métrica comparativa
+if metrica_secundaria != "Nenhuma":
+
+    coluna_secundaria = METRICAS[metrica_secundaria]
+
+    fig_barras.add_trace(
+        go.Scatter(
+            x=df_ranking["NM_BAIRRO"],
+            y=df_ranking[coluna_secundaria],
+            name=metrica_secundaria,
+            mode="lines+markers",
+            line=dict(
+                color="#D98B3B",
+                width=3
+            ),
+            marker=dict(size=8),
+            yaxis="y2",
+            connectgaps=False
+        )
+    )
+
+    fig_barras.update_layout(
+        yaxis2=dict(
+            title=metrica_secundaria,
+            overlaying="y",
+            side="right",
+            rangemode="tozero",
+            showgrid=False,
+            tickfont=dict(color="#D98B3B")
+        )
+    )
+
+
+titulo_metricas = (
+    metrica_ranking
+    if metrica_secundaria == "Nenhuma"
+    else f"{metrica_ranking} X {metrica_secundaria}<br>"
+)
+
 fig_barras.update_layout(
-    height=450,
-    showlegend=False,
-    margin=dict(l=20, r=20, t=30, b=70),
-    xaxis_tickangle=-35,
-    yaxis=dict(rangemode="tozero"),
+    title=dict(
+    text=(
+        f"{titulo_metricas}" 
+        f"({ano_inicio} a {ano_fim})<br>"
+    ),
+    x=0.5,
+    xanchor="center",
+    font=dict(size=16)
+    ),
+        
+    height=500,
+    showlegend=metrica_secundaria != "Nenhuma",
+    margin=dict(l=20, r=30, t=40, b=80),
+    #margin=dict(l=20, r=30, t=110, b=80),
+    xaxis_tickangle=-45,
+
+    yaxis=dict(
+        title=metrica_ranking,
+        rangemode="tozero"
+    ),
+
+    legend=dict(
+        orientation="h",
+        y=1.12,
+        x=0
+    )
 )
 
-st.caption(
-    f"Ranking dos bairros — período de {ano_inicio} a {ano_fim}"
+fig_barras.update_xaxes(
+    categoryorder="array",
+    categoryarray=df_ranking["NM_BAIRRO"].tolist()
 )
 
-st.plotly_chart(
-    fig_barras,
-    use_container_width=True,
-)
+
+with col_grafico_evolucao:
+    with st.container(border=True):
+        
+        st.plotly_chart(
+            fig_barras,
+            use_container_width=True,
+        )
+
+#f'''Exibindo {qtd_bairros} bairros com maiores números de {metrica_ranking}, comparando com {metrica_secundaria}, no período de {ano_inicio} a {ano_fim}.'''
 
 
 # ============================================================
@@ -439,3 +538,6 @@ letalidade = (
 
 
 # st.divider()
+
+
+"HeatMAP"

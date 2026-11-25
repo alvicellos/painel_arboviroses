@@ -277,6 +277,16 @@ st.divider()
 st.header("🏁 Dados tratados: ")
 '''##### É sobre esses dados que fala a página _análises_:'''
 
+"Aqui você pode fazer o download dos dados tratados no formato CSV."
+
+st.download_button(
+    label="Download",
+    data=df_dados_tratados.to_csv().encode("utf-8"),
+    file_name="data.csv",
+    mime="text/csv",
+    icon=":material/download:",
+)
+
 df_dados_tratados
 
 '''
