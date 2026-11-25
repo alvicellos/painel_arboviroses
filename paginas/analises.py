@@ -5,6 +5,7 @@
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
+from math import isfinite
 
 st.set_page_config(layout="wide")
 
@@ -50,89 +51,92 @@ if "filtros_ranking" not in st.session_state:
 # INTERFACE ASSISTENTE
 # ============================================================
 
-with st.expander("Assistente de análise"):
-    with st.form("assistente_analises_pergunta"):
-        pergunta = st.text_input(
-            "O que você quer explorar?",
-            max_chars=1000,
-            placeholder="Como vejo os cinco bairros com maior incidência?",
-        )
-        gerar = st.form_submit_button("Gerar orientação")
+# with st.expander("Assistente de análise"):
+#     with st.form("assistente_analises_pergunta"):
+#         pergunta = st.text_input(
+#             "O que você quer explorar?",
+#             max_chars=1000,
+#             placeholder="Como vejo os cinco bairros com maior incidência?",
+#         )
+#         gerar = st.form_submit_button("Gerar orientação")
 
-    if gerar:
-        st.session_state.pop("assistente_analises_plano", None)
+#     if gerar:
+#         st.session_state.pop("assistente_analises_plano", None)
 
-        if not pergunta.strip():
-            st.info("Digite uma pergunta para gerar uma orientação.")
-        else:
-            contexto = {
-                "metricas": list(METRICAS),
-                "anos": [int(ano) for ano in ANOS],
-                "bairros": BAIRROS,
-            }
+#         if not pergunta.strip():
+#             st.info("Digite uma pergunta para gerar uma orientação.")
+#         else:
+#             contexto = {
+#                 "metricas": list(METRICAS),
+#                 "anos": [int(ano) for ano in ANOS],
+#                 "bairros": BAIRROS,
+#             }
 
-            try:
-                with st.spinner("Gerando orientação com o modelo local..."):
-                    resposta = requests.post(
-                        "http://127.0.0.1:8000/assistente-analises/orientar",
-                        json={"pergunta": pergunta, "contexto": contexto},
-                        timeout=(3, 90),
-                    )
-                dados = resposta.json()
+#             try:
+#                 with st.spinner("Gerando orientação com o modelo local..."):
+#                     resposta = requests.post(
+#                         "http://127.0.0.1:8000/assistente-analises/orientar",
+#                         json={"pergunta": pergunta, "contexto": contexto},
+#                         timeout=(3, 90),
+#                     )
+#                 dados = resposta.json()
 
-                if resposta.ok:
-                    st.session_state.assistente_analises_plano = dados
-                else:
-                    detalhe = dados.get("detail")
-                    mensagem = (
-                        detalhe.get("mensagem")
-                        if isinstance(detalhe, dict)
-                        else None
-                    )
-                    if resposta.status_code == 404:
-                        st.warning("A rota de orientação não está disponível. Confira a API local.")
-                    else:
-                        st.warning(
-                            mensagem
-                            or f"Não foi possível gerar a orientação (HTTP {resposta.status_code})."
-                        )
-            except requests.exceptions.Timeout:
-                st.warning("A orientação demorou mais que o esperado. Tente novamente.")
-            except requests.exceptions.ConnectionError:
-                st.warning("Verifique se a API local do painel está em execução.")
-            except (requests.exceptions.RequestException, ValueError):
-                st.warning("Não foi possível ler a resposta da API local.")
+#                 if resposta.ok:
+#                     st.session_state.assistente_analises_plano = dados
+#                 else:
+#                     detalhe = dados.get("detail")
+#                     mensagem = (
+#                         detalhe.get("mensagem")
+#                         if isinstance(detalhe, dict)
+#                         else None
+#                     )
+#                     if resposta.status_code == 404:
+#                         st.warning("A rota de orientação não está disponível. Confira a API local.")
+#                     else:
+#                         st.warning(
+#                             mensagem
+#                             or f"Não foi possível gerar a orientação (HTTP {resposta.status_code})."
+#                         )
+#             except requests.exceptions.Timeout:
+#                 st.warning("A orientação demorou mais que o esperado. Tente novamente.")
+#             except requests.exceptions.ConnectionError:
+#                 st.warning("Verifique se a API local do painel está em execução.")
+#             except (requests.exceptions.RequestException, ValueError):
+#                 st.warning("Não foi possível ler a resposta da API local.")
 
-    plano = st.session_state.get("assistente_analises_plano")
-    if plano:
-        if plano["secao"] == "esclarecer":
-            st.text(plano["esclarecimento"])
-        elif plano["secao"] == "evolucao":
-            bairros = plano["bairros"]
-            if bairros:
-                st.write(f"Em **Evolução anual**, selecione {', '.join(bairros)}.")
-            else:
-                st.write("Em **Evolução anual**, limpe a seleção para ver todos os bairros.")
-        else:
-            st.write("Na barra lateral, abra **Filtros (comparação de indicadores)**.")
+#     plano = st.session_state.get("assistente_analises_plano")
+#     if plano:
+#         if plano["secao"] == "esclarecer":
+#             st.text(plano["esclarecimento"])
+#         elif plano["secao"] == "evolucao":
+#             bairros = plano["bairros"]
+#             if bairros:
+#                 st.write(f"Em **Evolução anual**, selecione {', '.join(bairros)}.")
+#             else:
+#                 st.write("Em **Evolução anual**, limpe a seleção para ver todos os bairros.")
+#         else:
+#             st.write("Na barra lateral, abra **Filtros (comparação de indicadores)**.")
 
-            if plano["metrica"] is not None:
-                st.write(f"**Métrica do ranking** — {plano['metrica']}")
+#             if plano["metrica"] is not None:
+#                 st.write(f"**Métrica do ranking** — {plano['metrica']}")
 
-            if plano["periodo"] is not None:
-                inicio, fim = plano["periodo"]
-                st.write(f"**Período do ranking** — {inicio} a {fim}")
+#             if plano["periodo"] is not None:
+#                 inicio, fim = plano["periodo"]
+#                 st.write(f"**Período do ranking** — {inicio} a {fim}")
 
-            if plano["qtd_bairros"] is not None:
-                st.write(f"**Quantidade de bairros a exibir** — {plano['qtd_bairros']}")
+#             if plano["qtd_bairros"] is not None:
+#                 st.write(f"**Quantidade de bairros a exibir** — {plano['qtd_bairros']}")
 
-            st.write("Clique em **Aplicar filtros** para atualizar o ranking e o mapa de calor.")
+#             st.write("Clique em **Aplicar filtros** para atualizar o ranking e o mapa de calor.")
 
 # ============================================================
 # GRÁFICO DE LINHAS — EVOLUÇÃO ANUAL
 # ============================================================
 
-f'''##### Evolução anual'''
+st.subheader("Evolução anual")
+"Exibição da série histórica"
+
+st.space()
 
 # Espaço reservado para o gráfico
 espaco_grafico = st.empty()
@@ -216,18 +220,22 @@ fig_linhas.update_layout(
         ),
         x=0.5,
         xanchor="center",
+        y=0.98,
+        yanchor="top",
         font=dict(size=16)
     ),
 
 
-    height=420,
+    height=480,
     hovermode="x unified",
-    margin=dict(l=20, r=20, t=40, b=20),
+    margin=dict(l=20, r=20, t=65, b=90),
 
     legend=dict(
         orientation="h",
-        y=1.12,
-        x=0,
+        y=-0.17,
+        yanchor="top",
+        x=0.5,
+        xanchor="center",
     ),
 
     xaxis=dict(
@@ -265,6 +273,56 @@ else:
     st.caption(
         f"O gráfico está exibindo dados {bairro}: {', '.join(bairros_selecionados[:-1])} e {bairros_selecionados[-1]}."
     )
+
+def numero_para_json(valor):
+    numero = float(valor)
+    return numero if isfinite(numero) else None
+
+
+def exibir_resumo(grafico, chave_resposta, rotulo):
+    tem_dados = bool(grafico.get("pontos") or grafico.get("bairros") or grafico.get("indicadores"))
+    if not tem_dados:
+        st.info("Este gráfico está vazio para o recorte atual.")
+
+    if st.button(rotulo, key=f"{chave_resposta}_botao", disabled=not tem_dados):
+        try:
+            with st.spinner("Consultando o modelo local..."):
+                resposta = requests.post(
+                    "http://127.0.0.1:8000/assistente-analises/analisar-grafico",
+                    json={"grafico": grafico},
+                    timeout=(3, 120),
+                )
+
+            if resposta.ok:
+                st.session_state[chave_resposta] = {
+                    "grafico": grafico,
+                    "texto": resposta.json()["analise"],
+                }
+            elif resposta.status_code == 404:
+                st.warning("A rota de análise está ausente. Confira a API local.")
+            elif resposta.status_code == 422:
+                st.warning("A API rejeitou os dados do gráfico.")
+            else:
+                detalhe = resposta.json().get("detail")
+                mensagem = (
+                    detalhe.get("mensagem") if isinstance(detalhe, dict) else None
+                )
+                st.warning(
+                    mensagem or f"Falha ao resumir o gráfico (HTTP {resposta.status_code})."
+                )
+        except requests.exceptions.Timeout:
+            st.warning("O modelo demorou mais que o esperado.")
+        except requests.exceptions.ConnectionError:
+            st.warning("Verifique se a API local está em execução.")
+        except (requests.exceptions.RequestException, ValueError, KeyError):
+            st.warning("Não foi possível ler a resposta da API local.")
+
+    resposta_salva = st.session_state.get(chave_resposta)
+    if resposta_salva:
+        if resposta_salva["grafico"] != grafico:
+            st.caption("Última análise gerada para o recorte anterior.")
+        st.write(resposta_salva["texto"])
+
 
 # ============================================================
 # 7. RANKING DOS BAIRROS — FILTROS INDEPENDENTES
@@ -401,6 +459,36 @@ df_ranking = (
     .head(qtd_bairros)
 )
 
+###############################################
+
+metrica_comparativa = (
+    None if metrica_secundaria == "Nenhuma" else metrica_secundaria
+)
+coluna_comparativa = (
+    METRICAS[metrica_comparativa] if metrica_comparativa else None
+)
+
+bairros_do_grafico = []
+for registro in df_ranking.to_dict("records"):
+    comparativa = (
+        float(registro[coluna_comparativa]) if coluna_comparativa else None
+    )
+    if comparativa is not None and not isfinite(comparativa):
+        comparativa = None
+
+    bairros_do_grafico.append({
+        "bairro": registro["NM_BAIRRO"],
+        "principal": float(registro[coluna_metrica]),
+        "comparativa": comparativa,
+    })
+
+resumo_ranking = {
+    "metrica": metrica_ranking,
+    "metrica_comparativa": metrica_comparativa,
+    "periodo": [int(ano_inicio), int(ano_fim)],
+    "bairros": bairros_do_grafico,
+}
+
 fig_barras = px.bar(
     df_ranking,
     x="NM_BAIRRO",
@@ -498,6 +586,14 @@ with st.container(border=True):
         use_container_width=True,
     )
 
+with st.expander("Assistente do ranking de bairros"):
+    exibir_resumo(
+        {"tipo": "ranking", **resumo_ranking},
+        "assistente_resumo_ranking",
+        "Resumir ranking de bairros",
+    )
+
+
 # ============================================================
 # MAPA DE CALOR — COMPARAÇÃO ENTRE MÉTRICAS
 # ============================================================
@@ -588,3 +684,32 @@ with st.container(border=True):
         fig_heatmap,
         use_container_width=True
     )
+
+with st.expander("Assistente do mapa de calor"):
+    if bairros_ranking:
+        bairro_mapa = st.selectbox(
+            "Bairro para analisar",
+            bairros_ranking,
+            key="assistente_bairro_mapa",
+        )
+        indicadores = []
+        for indicador, coluna in METRICAS.items():
+            posicao = numero_para_json(df_posicoes.loc[bairro_mapa, coluna])
+            indicadores.append({
+                "indicador": indicador,
+                "posicao": int(posicao) if posicao is not None else None,
+            })
+
+        resumo_mapa = {
+            "tipo": "mapa_calor",
+            "periodo": resumo_ranking["periodo"],
+            "bairro": bairro_mapa,
+            "indicadores": indicadores,
+        }
+        exibir_resumo(resumo_mapa, "assistente_resumo_mapa", "Resumir posições do bairro")
+    else:
+        exibir_resumo(
+            {"tipo": "mapa_calor", "indicadores": []},
+            "assistente_resumo_mapa",
+            "Resumir posições do bairro",
+        )

@@ -17,6 +17,8 @@ from src.assistente_analises import (
 
 from src.modelo_qwen import ModeloIndisponivel
 
+from src.analise_graficos import PedidoResumoGrafico, gerar_resumo_grafico
+
 dados = carregar_dados_fonte()
 df_populacao = carregar_dados_populacao()   
 df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)
@@ -252,3 +254,36 @@ def orientar_analises(pedido: PedidoOrientacao) -> PlanoAnalise:
             "falha_inferencia",
             "Ocorreu um erro ao gerar a orientação. Tente novamente.",
         ) from exc
+
+
+class AnaliseGrafico(BaseModel):
+    analise: str
+
+
+@app.post("/assistente-analises/analisar-grafico", response_model=AnaliseGrafico)
+def analisar_grafico(pedido: PedidoResumoGrafico) -> AnaliseGrafico:
+    try:
+        texto = gerar_resumo_grafico(pedido)
+    except ModeloIndisponivel as exc:
+        logger.exception("Falha ao carregar o modelo para análise de gráfico.")
+        raise erro_orientacao(
+            503,
+            "modelo_indisponivel",
+            "Não foi possível carregar o Qwen3 0.6B em models/qwen3_0_6b.",
+        ) from exc
+    except (RuntimeError, ValueError, OSError) as exc:
+        logger.exception("Falha ao analisar o gráfico.")
+        raise erro_orientacao(
+            500,
+            "falha_inferencia",
+            "Ocorreu um erro ao analisar o gráfico. Tente novamente.",
+        ) from exc
+
+    if not texto:
+        raise erro_orientacao(
+            502,
+            "analise_vazia",
+            "O modelo não gerou uma análise. Tente novamente.",
+        )
+
+    return AnaliseGrafico(analise=texto)
