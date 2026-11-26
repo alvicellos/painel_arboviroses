@@ -1,4 +1,5 @@
-﻿# Dependencias opcionais da bancada; nao precisam entrar no deploy Streamlit.
+# Dependencias opcionais do modelo local e dos utilitarios de bancada
 -r requirements.txt
-transformers>=5.0,<6
+huggingface-hub==2.4.0
 torch>=2.6
+transformers>=5.0,<6

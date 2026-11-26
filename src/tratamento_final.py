@@ -1,5 +1,6 @@
 from src.carga_preparacao import excluir_varios_valores, excluir_por_valor
-#import streamlit as st
+
+ANOS_EXCLUIDOS_ANALISE = (2015, 2016)
 
 # ------------------------     Tratamento dos dados     ------------------------------------------  
 # ---------------------------------------------------------------------------------- coluna NU_ANO 

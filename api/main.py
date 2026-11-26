@@ -1,28 +1,22 @@
-import pandas as pd
-from src.carga_preparacao import carregar_dados_fonte, carregar_dados_populacao, agregacao_bairros, criar_analise, carregar_noticias
-from fastapi import FastAPI, Body, Query, Path, HTTPException
-from typing import Literal
 from datetime import datetime
+from typing import Literal
 
-import logging
+from fastapi import Body, FastAPI, HTTPException, Path, Query
 
-from pydantic import BaseModel
-
-from src.assistente_analises import (
-    ContextoAnalises,
-    PlanoAnalise,
-    PlanoInvalido,
-    gerar_plano,
+from src.carga_preparacao import (
+    agregacao_bairros,
+    carregar_dados_fonte,
+    carregar_dados_populacao,
+    criar_analise,
 )
+from src.tratamento_final import ANOS_EXCLUIDOS_ANALISE, gerar_dados_analise
 
-from src.modelo_qwen import ModeloIndisponivel
-
-from src.analise_graficos import PedidoResumoGrafico, gerar_resumo_grafico
 
 dados = carregar_dados_fonte()
-df_populacao = carregar_dados_populacao()   
-df_bairros_todos, df_bairros_hosp, df_bairro_ano = agregacao_bairros(dados)
-bairros = df_bairros_todos['NM_BAIRRO'].dropna().unique().tolist()
+df_populacao, _ = carregar_dados_populacao()
+dados_tratados, *_ = gerar_dados_analise(dados, ANOS_EXCLUIDOS_ANALISE)
+_, _, df_bairro_ano = agregacao_bairros(dados_tratados.dropna(subset=["NM_BAIRRO"]))
+bairros = df_bairro_ano["NM_BAIRRO"].unique().tolist()
 validacao_bairros = Literal[tuple(bairros)]
 
 app = FastAPI(
@@ -81,10 +75,10 @@ def dados_completos_por_ano(
 def analisar_bairro(
     bairro: validacao_bairros
     ):
-    df_analise = criar_analise(df_bairro_ano, df_populacao)
+    """Retorna os indicadores do bairro com os critérios da página Análises."""
+    df_analise = criar_analise(df_bairro_ano, df_populacao.copy())
     df_analise = df_analise[df_analise["NM_BAIRRO"] == bairro]
-    df_analise = df_analise.dropna()
-    registros = df_analise.to_dict(orient="records")
+    registros = df_analise.astype(object).where(df_analise.notna(), None).to_dict(orient="records")
 
     return {
         "bairro": bairro,
@@ -192,98 +186,3 @@ def analisar_dados(registros: list[dict] = Body(...)):
         "hospitalizacoes": hospitalizacoes,
         "obitos": obitos
     }
-
-
-
-logger = logging.getLogger(__name__)
-
-
-def erro_orientacao(status: int, codigo: str, mensagem: str) -> HTTPException:
-    return HTTPException(
-        status_code=status,
-        detail={"codigo": codigo, "mensagem": mensagem},
-    )
-
-
-from src.assistente_analises import (
-    ContextoAnalises,
-    PlanoAnalise,
-    PlanoInvalido,
-    gerar_plano,
-)
-
-
-class PedidoOrientacao(BaseModel):
-    pergunta: str
-    contexto: ContextoAnalises
-
-
-@app.post("/assistente-analises/orientar", response_model=PlanoAnalise)
-def orientar_analises(pedido: PedidoOrientacao) -> PlanoAnalise:
-    pergunta = pedido.pergunta.strip()
-
-    if not pergunta or len(pergunta) > 1000:
-        raise erro_orientacao(
-            422,
-            "pergunta_invalida",
-            "Digite uma pergunta de até 1.000 caracteres.",
-        )
-
-    try:
-        return gerar_plano(pergunta, pedido.contexto)
-    except ModeloIndisponivel as exc:
-        logger.exception("Falha ao carregar o modelo local.")
-        raise erro_orientacao(
-            503,
-            "modelo_indisponivel",
-            "Não foi possível carregar o Qwen3 0.6B. Confira "
-            "os arquivos em models/qwen3_0_6b.",
-        ) from exc
-    except PlanoInvalido as exc:
-        logger.warning("O modelo gerou um plano inválido: %s", exc)
-        raise erro_orientacao(
-            502,
-            "plano_invalido",
-            "O assistente não conseguiu validar a sugestão. "
-            "Tente reformular a pergunta.",
-        ) from exc
-    except (RuntimeError, ValueError, OSError) as exc:
-        logger.exception("Falha na geração do plano.")
-        raise erro_orientacao(
-            500,
-            "falha_inferencia",
-            "Ocorreu um erro ao gerar a orientação. Tente novamente.",
-        ) from exc
-
-
-class AnaliseGrafico(BaseModel):
-    analise: str
-
-
-@app.post("/assistente-analises/analisar-grafico", response_model=AnaliseGrafico)
-def analisar_grafico(pedido: PedidoResumoGrafico) -> AnaliseGrafico:
-    try:
-        texto = gerar_resumo_grafico(pedido)
-    except ModeloIndisponivel as exc:
-        logger.exception("Falha ao carregar o modelo para análise de gráfico.")
-        raise erro_orientacao(
-            503,
-            "modelo_indisponivel",
-            "Não foi possível carregar o Qwen3 0.6B em models/qwen3_0_6b.",
-        ) from exc
-    except (RuntimeError, ValueError, OSError) as exc:
-        logger.exception("Falha ao analisar o gráfico.")
-        raise erro_orientacao(
-            500,
-            "falha_inferencia",
-            "Ocorreu um erro ao analisar o gráfico. Tente novamente.",
-        ) from exc
-
-    if not texto:
-        raise erro_orientacao(
-            502,
-            "analise_vazia",
-            "O modelo não gerou uma análise. Tente novamente.",
-        )
-
-    return AnaliseGrafico(analise=texto)

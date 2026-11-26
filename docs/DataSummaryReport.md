@@ -4,7 +4,7 @@
 
 * Os registros de chikungunya de 2015 a 2025 são coletados pela API de dados abertos da Prefeitura do Recife, a partir de https://dados.recife.pe.gov.br/api/action/. A coleta seleciona os recursos referentes a chikungunya e salva os dados em `data/processed/data_series.json`, utilizado no carregamento da aplicação.
 
-* A população por bairro é obtida pela API geográfica da Prefeitura do Recife, com dados do **Censo 2022**: https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer.
+* A população por bairro vem do **Censo 2022**, consultado pela API geográfica da Prefeitura do Recife. Se a consulta falhar, a aplicação usa o cache `data/processed/populacao_2022.json`. [Serviço geográfico da Prefeitura](https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Hosted/Bairros_Censo2022_final/FeatureServer)
 
 * As notícias são coletadas no site da **Fiocruz**, pela busca dos termos **dengue** e **chikungunya**. Elas complementam a apresentação do tema e não entram no cálculo dos indicadores epidemiológicos.
 
@@ -23,7 +23,7 @@ Os dados de casos são estruturados. Na coleta pela API, são selecionadas as co
 
 As diferenças nos nomes das colunas dos arquivos mais antigos são padronizadas na coleta.
 
-Para a análise por localidade, são necessários o ano e o bairro. A classificação final define o recorte de chikungunya, correspondente ao código `13`; excluir apenas o código `5` não seria suficiente para separar essa doença das demais classificações.
+Para a análise por localidade, são necessários o ano e o bairro. O código `13` na classificação final identifica os casos de chikungunya.
 
 ## Transformações
 
@@ -50,7 +50,33 @@ Os dados agregados são associados à população pelo nome do bairro, com padro
 * `INCIDENCIA_100K`: `TOTAL_CASOS / POPULACAO * 100.000`.
 * `PERC_CASOS_HOSP`: `TOTAL_HOSPITALIZACOES / TOTAL_CASOS * 100`.
 
-A população de 2022 é utilizada como referência para todos os anos, o que limita a comparação da incidência ao longo do tempo. Bairros sem correspondência na base populacional ficam sem população e incidência calculadas. Populações repetidas entre anos não devem ser somadas.
+A população de 2022 é utilizada como referência para todos os anos, o que limita a comparação da incidência ao longo do tempo. Nas próximas atualizações serão utilizadas projetos do IBGE para os demais anos.
+
+### Indicadores e visualizações
+
+- **Ranking de bairros.** Agrega os totais por bairro no período selecionado.
+  Além dos totais e do percentual de hospitalização, apresenta incidência
+  por 100 mil habitantes e **letalidade**, calculada como
+  `TOTAL_OBITOS / TOTAL_CASOS * 100`. A incidência no ranking usa o total
+  do período e a população de referência do bairro.
+- **Mapa de calor.** Exibe os mesmos bairros do ranking e mostra a posição
+  de cada um no ranking geral de cada indicador do período.
+- **Evolução anual.** Exibe o total de casos e o percentual de hospitalização
+  por ano. Quando há seleção de bairros, os valores representam o conjunto
+  selecionado.
+
+## Uso dos dados pelo assistente e pela API
+
+O assistente da página **Análises** consulta os dados tratados e usa as mesmas
+funções de agregação dos gráficos. A Groq recebe a pergunta, o contexto da
+consulta e os resultados agregados. O painel exibe as tabelas e sugere os
+filtros para reproduzir o recorte nos gráficos. [Implementação do agente](../readme.md#implementação-do-agente)
+
+A API de dados oferece uma amostra, uma consulta por ano e uma consulta com
+indicadores por bairro. A amostra e a consulta por ano leem a série bruta e
+retêm registros com os campos preenchidos. A consulta de indicadores por
+bairro usa a base tratada e devolve como `null` os indicadores sem dados
+suficientes para cálculo.
 
 ## Coleta de notícias
 

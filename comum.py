@@ -6,10 +6,10 @@ from src.carga_preparacao import (carregar_dados_populacao,
                                 excluir_varios_valores, 
                                 agregacao_bairros, 
                                 criar_analise)
-from src.tratamento_final import gerar_dados_analise
+from src.tratamento_final import ANOS_EXCLUIDOS_ANALISE, gerar_dados_analise
 
 colunas_analise = {'HOSPITALIZ': 'quantidade hospitalizacoes' , 'EVOLUCAO': 'como paciente evoluiu', 'CLASSI_FIN': 'confirmação diagnóstico'}
-anos_exclusao = [2015, 2016]
+anos_exclusao = list(ANOS_EXCLUIDOS_ANALISE)
 
 df_populacao, fonte_populacao = carregar_dados_populacao()
 dados = carregar_dados_fonte()

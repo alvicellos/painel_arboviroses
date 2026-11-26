@@ -13,17 +13,10 @@ inicializar_estado()
 pagina = st.navigation(
     {
         "Painel": [
-            st.Page("paginas/inicio.py", title="Início", icon="🏠", default=True),
-            # st.Page("paginas/bairro.py", title="Por bairro", icon="📊"),
-            # st.Page("paginas/usuario.py", title="Análises usuário", icon="📊"),
-            #st.Page("paginas/noticias.py", title="Notícias", icon="⭐"),
+            st.Page("paginas/inicio.py", title="Início", icon="🏠", default=True),            
             st.Page("paginas/dados.py", title="E esses dados ?", icon="🎲"),
-            #st.Page("paginas/analises.py", title="Análises", icon="🎯"),
-            st.Page("paginas/integracao_llm.py", title="Pergunte aos dados", icon="📰"),
             st.Page("paginas/analises.py", title="Análises", icon="🎯"),
             st.Page("paginas/noticias.py", title="Notícias", icon="📰"),            
-            # st.Page("paginas/links.py", title="Links / Inspirações", icon="📊"),
-            #st.Page("paginas/desmatamento.py", title="Desmatamento (PRODES)", icon="🌳"),
         ],
         # "Fontes e texto": [
         #     st.Page("paginas/noticias.py", title="Notícias", icon="📰"),
@@ -43,7 +36,7 @@ st.sidebar.caption(
     f''' 
     · API Prefeitura da Cidade do Recife  
     · Fiocruz (Webscraping)  
-    · Origem dos dados populacionais: {st.session_state.fonte_dados_populacao.upper()}'''
+    · Origem dos dados populacionais/bairros: {st.session_state.fonte_dados_populacao.upper()}'''
 )
 
 pagina.run()

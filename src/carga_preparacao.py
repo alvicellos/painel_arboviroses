@@ -111,8 +111,8 @@ def carregar_dados_populacao(download=False):
     
     '''
     Baixa os dados de população de 2022 se a api estiver online, caso
-    contrátio lê os dados da base csv. Retorna a fonte utilizada.
-    Com download=True, salva os dados em "data\processed\popupacao_2022.json"
+    contrário lê os dados do cache JSON. Retorna a fonte utilizada.
+    Com download=True, salva os dados em "data\processed\populacao_2022.json"
     '''
     
     try:
@@ -139,10 +139,10 @@ def carregar_dados_populacao(download=False):
         fonte = "api"
         
         if download:
-            df_populacao.to_json(PROCESSED / 'popupacao_2022.json', orient='records')
+            df_populacao.to_json(PROCESSED / 'populacao_2022.json', orient='records')
     
     except:        
-        df_populacao = pd.read_csv(PROCESSED / 'popupacao_2022.json')        
+        df_populacao = pd.read_json(PROCESSED / 'populacao_2022.json')
         fonte = "cache"
     
             
